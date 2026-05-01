@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,18 +32,41 @@ public class AbonnementService {
     public AbonnementDTO.PaymentResponse traiterPaiement(
             AbonnementDTO.PaymentRequest request, String email) {
 
+        // ✅ FIX 1: Validate typeAbonnement FIRST with a clear error message
+        if (request.getTypeAbonnement() == null || request.getTypeAbonnement().trim().isEmpty()) {
+            throw new RuntimeException("Type d'abonnement requis !");
+        }
+
+        TypeAbonnement type;
+        try {
+            type = TypeAbonnement.valueOf(request.getTypeAbonnement().trim());
+        } catch (IllegalArgumentException e) {
+            // ✅ FIX 2: Tell the client exactly what values are accepted
+            String accepted = Arrays.stream(TypeAbonnement.values())
+                    .map(Enum::name)
+                    .collect(Collectors.joining(", "));
+            throw new RuntimeException(
+                    "Type d'abonnement invalide : '" + request.getTypeAbonnement() +
+                            "'. Valeurs acceptées : " + accepted
+            );
+        }
+
+        // ✅ FIX 3: Validate card details AFTER validating enum (avoids NPE cascade)
         validerCarte(request);
 
+        // ✅ FIX 4: Check authentication is not null before using it
+        if (email == null || email.trim().isEmpty()) {
+            throw new RuntimeException("Utilisateur non authentifié. Veuillez vous reconnecter.");
+        }
+
         user currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé : " + email));
 
         Optional<Abonnement> existant = abonnementRepository
                 .findAbonnementActifByuserId(currentUser.getId(), LocalDate.now());
         if (existant.isPresent()) {
             throw new RuntimeException("Vous avez déjà un abonnement actif !");
         }
-
-        TypeAbonnement type = TypeAbonnement.valueOf(request.getTypeAbonnement());
 
         Abonnement abonnement = new Abonnement();
         abonnement.setType_abonnement(type);
@@ -55,10 +79,8 @@ public class AbonnementService {
 
         abonnementRepository.save(abonnement);
 
-        // 5. Email confirmation
         emailService.sendSubscriptionConfirmation(currentUser.getEmail(), type.name());
 
-        // 6. Réponse
         AbonnementDTO.PaymentResponse response = new AbonnementDTO.PaymentResponse();
         response.setSuccess(true);
         response.setMessage("Paiement effectué avec succès !");
@@ -70,34 +92,33 @@ public class AbonnementService {
     }
 
     private void validerCarte(AbonnementDTO.PaymentRequest request) {
-        // Numéro : 16 chiffres
+        // ✅ Numéro : 16 chiffres (espaces déjà supprimés par Angular)
+        if (request.getNumeroCarte() == null) {
+            throw new RuntimeException("Numéro de carte requis !");
+        }
         String numero = request.getNumeroCarte().replaceAll("\\s", "");
         if (numero.length() != 16 || !numero.matches("\\d+")) {
-            throw new RuntimeException("Numéro de carte invalide !");
+            throw new RuntimeException("Numéro de carte invalide ! (16 chiffres requis, reçu : " + numero.length() + ")");
         }
 
-        if (!request.getDateExpiration().matches("(0[1-9]|1[0-2])/\\d{2}")) {
-            throw new RuntimeException("Date d'expiration invalide ! (format MM/YY)");
+        if (request.getDateExpiration() == null ||
+                !request.getDateExpiration().matches("(0[1-9]|1[0-2])/\\d{2}")) {
+            throw new RuntimeException("Date d'expiration invalide ! Format attendu : MM/YY");
         }
         String[] parts = request.getDateExpiration().split("/");
         int mois = Integer.parseInt(parts[0]);
         int annee = 2000 + Integer.parseInt(parts[1]);
-        LocalDate expDate = LocalDate.of(annee, mois, 1)
-                .plusMonths(1).minusDays(1);
+        LocalDate expDate = LocalDate.of(annee, mois, 1).plusMonths(1).minusDays(1);
         if (expDate.isBefore(LocalDate.now())) {
             throw new RuntimeException("Carte expirée !");
         }
 
-        if (!request.getCvv().matches("\\d{3}")) {
-            throw new RuntimeException("CVV invalide !");
+        if (request.getCvv() == null || !request.getCvv().matches("\\d{3}")) {
+            throw new RuntimeException("CVV invalide ! (3 chiffres requis)");
         }
 
         if (request.getNomCarte() == null || request.getNomCarte().trim().isEmpty()) {
             throw new RuntimeException("Nom sur la carte requis !");
-        }
-
-        if (request.getTypeAbonnement() == null || request.getTypeAbonnement().trim().isEmpty()) {
-            throw new RuntimeException("Type d'abonnement requis !");
         }
     }
 
