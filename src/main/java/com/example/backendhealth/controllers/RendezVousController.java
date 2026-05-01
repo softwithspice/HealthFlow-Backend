@@ -17,7 +17,7 @@ import java.util.List;
 public class RendezVousController {
 
     private final RendezVousService rdvService;
-    git status
+
     public RendezVousController(RendezVousService rdvService) {
         this.rdvService = rdvService;
     }
