@@ -1,13 +1,9 @@
-
-
-
-          package entities;
+package com.example.backendhealth.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -43,15 +39,12 @@ public class RendezVous {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    // Lien avec le nutritionniste (optionnel)
     @Column(name = "nutritionniste_id")
     private Long nutritionnisteId;
 
-    // Lien avec le coach (optionnel)
     @Column(name = "coach_id")
     private Long coachId;
 
-    // Enum Statut
     public enum StatutRendezVous {
         EN_ATTENTE,
         CONFIRME,
@@ -59,7 +52,6 @@ public class RendezVous {
         TERMINE
     }
 
-    // Enum Type Intervenant
     public enum TypeIntervenant {
         NUTRITIONNISTE,
         COACH,

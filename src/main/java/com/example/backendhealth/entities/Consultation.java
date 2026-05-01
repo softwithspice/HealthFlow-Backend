@@ -1,9 +1,7 @@
-package entities;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+package com.example.backendhealth.entities;
 
+import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,30 +15,23 @@ public class Consultation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "rendez_vous_id", unique = true)
+    @Column(name = "rendez_vous_id", unique = true, nullable = false)
     private Long rendezVousId;
 
-    // Patient
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Column(name = "nutritionniste_id")
     private Long nutritionnisteId;
 
-    // Coach qui a fait la consultation
     @Column(name = "coach_id")
-    private Long coachId;
+    private Long coachId;              // ← was missing
 
-    private Double poids;       // en kg
-    private Double taille;      // en cm
-    private Double imc;         // calculé automatiquement
-    private String objectif;    // perte de poids, maintien, prise de masse
+    private Double poids;
+    private Double taille;
+    private Double imc;
+    private String objectif;
 
-    // ── Plan alimentaire recommandé ───────────────────────────────
-    @Column(name = "plan_alimentaire_id")
-    private Long planAlimentaireId;
-
-    // ── Diagnostic et recommandations ────────────────────────────
     @Column(columnDefinition = "TEXT")
     private String diagnostic;
 
@@ -50,28 +41,32 @@ public class Consultation {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @OneToOne(mappedBy = "consultation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private PlanAlimentaire planAlimentaire;
+
     @Column(name = "date_consultation")
     private LocalDateTime dateConsultation;
 
-    // Prochain RDV recommandé
     @Column(name = "prochain_rdv")
     private LocalDateTime prochainRdv;
 
     @PrePersist
     public void prePersist() {
         this.dateConsultation = LocalDateTime.now();
-        // Calcul automatique de l'IMC si poids et taille disponibles
-        if (this.poids != null && this.taille != null && this.taille > 0) {
-            double tailleEnMetres = this.taille / 100.0;
-            this.imc = Math.round((this.poids / (tailleEnMetres * tailleEnMetres)) * 100.0) / 100.0;
-        }
+        calculerImc();
     }
 
     @PreUpdate
     public void preUpdate() {
+        calculerImc();
+    }
+
+    private void calculerImc() {
         if (this.poids != null && this.taille != null && this.taille > 0) {
-            double tailleEnMetres = this.taille / 100.0;
-            this.imc = Math.round((this.poids / (tailleEnMetres * tailleEnMetres)) * 100.0) / 100.0;
+            double tailleM = this.taille / 100.0;
+            this.imc = Math.round((this.poids / (tailleM * tailleM)) * 100.0) / 100.0;
         }
     }
 }

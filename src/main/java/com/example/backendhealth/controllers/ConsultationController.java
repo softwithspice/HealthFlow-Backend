@@ -1,7 +1,7 @@
 
-package controllers;
-import dto.ConsultationDTO;
-import services.ConsultationService;
+package com.example.backendhealth.controllers;
+import com.example.backendhealth.dto.ConsultationDTO;
+import com.example.backendhealth.services.ConsultationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

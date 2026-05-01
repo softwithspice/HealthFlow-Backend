@@ -1,8 +1,8 @@
-package services;
+package com.example.backendhealth.services;
 
-import dto.ConsultationDTO;
-import entities.Consultation;
-import repositories.ConsultationRepository;
+import com.example.backendhealth.dto.ConsultationDTO;
+import com.example.backendhealth.entities.Consultation;
+import com.example.backendhealth.repositories.ConsultationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -50,8 +50,7 @@ public class ConsultationService {
     }
 
     public ConsultationDTO createConsultation(ConsultationDTO dto) {
-        Consultation consultation = toEntity(dto);
-        return toDTO(consultationRepo.save(consultation));
+        return toDTO(consultationRepo.save(toEntity(dto)));
     }
 
     public ConsultationDTO updateConsultation(Long id, ConsultationDTO dto) {
@@ -65,7 +64,6 @@ public class ConsultationService {
         existing.setPoids(dto.getPoids());
         existing.setTaille(dto.getTaille());
         existing.setObjectif(dto.getObjectif());
-        existing.setPlanAlimentaireId(dto.getPlanAlimentaireId());
         existing.setDiagnostic(dto.getDiagnostic());
         existing.setRecommandations(dto.getRecommandations());
         existing.setNotes(dto.getNotes());
@@ -91,7 +89,10 @@ public class ConsultationService {
         dto.setTaille(c.getTaille());
         dto.setImc(c.getImc());
         dto.setObjectif(c.getObjectif());
-        dto.setPlanAlimentaireId(c.getPlanAlimentaireId());
+        // Récupère l'ID du plan lié s'il existe
+        if (c.getPlanAlimentaire() != null) {
+            dto.setPlanAlimentaireId(c.getPlanAlimentaire().getId());
+        }
         dto.setDiagnostic(c.getDiagnostic());
         dto.setRecommandations(c.getRecommandations());
         dto.setNotes(c.getNotes());
@@ -109,7 +110,6 @@ public class ConsultationService {
         c.setPoids(dto.getPoids());
         c.setTaille(dto.getTaille());
         c.setObjectif(dto.getObjectif());
-        c.setPlanAlimentaireId(dto.getPlanAlimentaireId());
         c.setDiagnostic(dto.getDiagnostic());
         c.setRecommandations(dto.getRecommandations());
         c.setNotes(dto.getNotes());

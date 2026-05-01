@@ -1,13 +1,10 @@
-package dto:
+package com.example.backendhealth.dto;
 
-
-
-import entities.RendezVous.StatutRendezVous;
-import entities.RendezVous.TypeIntervenant;
+import com.example.backendhealth.entities.RendezVous.StatutRendezVous;
+import com.example.backendhealth.entities.RendezVous.TypeIntervenant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Data

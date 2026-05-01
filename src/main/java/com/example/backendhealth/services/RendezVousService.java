@@ -1,12 +1,11 @@
-package services;
+package com.example.backendhealth.services;
 
-import dto.RendezVousDTO;
-import entities.RendezVous;
-import entities.RendezVous.StatutRendezVous;
-import repositories.RendezVousRepository;
+import com.example.backendhealth.dto.RendezVousDTO;
+import com.example.backendhealth.entities.RendezVous;
+import com.example.backendhealth.entities.RendezVous.StatutRendezVous;
+import com.example.backendhealth.repositories.RendezVousRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,43 +33,51 @@ public class RendezVousService {
     }
 
     public List<RendezVousDTO> getRendezVousByNutritionnisteId(Long nutritionnisteId) {
-        return rdvRepo.findByNutritionnisteId(nutritionnisteId)
-                .stream().map(this::toDTO).collect(Collectors.toList());
+        return rdvRepo.findByNutritionnisteId(nutritionnisteId).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     public List<RendezVousDTO> getRendezVousByCoachId(Long coachId) {
-        return rdvRepo.findByCoachId(coachId)
-                .stream().map(this::toDTO).collect(Collectors.toList());
+        return rdvRepo.findByCoachId(coachId).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     public List<RendezVousDTO> getRendezVousByStatut(StatutRendezVous statut) {
         return rdvRepo.findByStatut(statut).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ── GET BY USER AND STATUT ────────────────────────────────────
     public List<RendezVousDTO> getRendezVousByUserIdAndStatut(Long userId, StatutRendezVous statut) {
-        return rdvRepo.findByUserIdAndStatut(userId, statut)
-                .stream().map(this::toDTO).collect(Collectors.toList());
+        return rdvRepo.findByUserIdAndStatut(userId, statut).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<RendezVousDTO> getCalendrierNutritionniste(Long nutritionnisteId,
-                                                           LocalDateTime debut,
-                                                           LocalDateTime fin) {
+    public List<RendezVousDTO> getCalendrierNutritionniste(Long nutritionnisteId, LocalDateTime debut, LocalDateTime fin) {
         return rdvRepo.findByNutritionnisteIdAndDateHeureBetween(nutritionnisteId, debut, fin)
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<RendezVousDTO> getCalendrierCoach(Long coachId,
-                                                  LocalDateTime debut,
-                                                  LocalDateTime fin) {
+    public List<RendezVousDTO> getCalendrierCoach(Long coachId, LocalDateTime debut, LocalDateTime fin) {
         return rdvRepo.findByCoachIdAndDateHeureBetween(coachId, debut, fin)
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
+    // ── Patient crée un RDV ────────────────────────────────────────
     public RendezVousDTO createRendezVous(RendezVousDTO dto) {
         RendezVous rdv = toEntity(dto);
         rdv.setStatut(StatutRendezVous.EN_ATTENTE);
         return toDTO(rdvRepo.save(rdv));
+    }
+
+    // ── Nutritionniste accepte le RDV ──────────────────────────────
+    public RendezVousDTO accepterRendezVous(Long id) {
+        return updateStatut(id, StatutRendezVous.CONFIRME);
+    }
+
+    // ── Nutritionniste refuse le RDV ───────────────────────────────
+    public RendezVousDTO refuserRendezVous(Long id) {
+        return updateStatut(id, StatutRendezVous.ANNULE);
+    }
+
+    // ── Marquer RDV comme terminé (après consultation) ────────────
+    public RendezVousDTO terminerRendezVous(Long id) {
+        return updateStatut(id, StatutRendezVous.TERMINE);
     }
 
     public RendezVousDTO updateStatut(Long id, StatutRendezVous statut) {
@@ -83,7 +90,6 @@ public class RendezVousService {
     public RendezVousDTO updateRendezVous(Long id, RendezVousDTO dto) {
         RendezVous existing = rdvRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("RendezVous introuvable : id=" + id));
-
         existing.setDateHeure(dto.getDateHeure());
         existing.setStatut(dto.getStatut());
         existing.setTypeIntervenant(dto.getTypeIntervenant());
@@ -93,7 +99,6 @@ public class RendezVousService {
         existing.setUserId(dto.getUserId());
         existing.setNutritionnisteId(dto.getNutritionnisteId());
         existing.setCoachId(dto.getCoachId());
-
         return toDTO(rdvRepo.save(existing));
     }
 
