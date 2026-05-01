@@ -1,4 +1,4 @@
-package com.example.backendhealth.entities;
+        package com.example.backendhealth.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

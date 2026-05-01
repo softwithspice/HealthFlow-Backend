@@ -1,5 +1,5 @@
-package controllers;
 
+package controllers;
 import dto.ConsultationDTO;
 import services.ConsultationService;
 import org.springframework.http.HttpStatus;
