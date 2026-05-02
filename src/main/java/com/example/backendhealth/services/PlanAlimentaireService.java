@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,10 +38,9 @@ public class PlanAlimentaireService {
                 .orElseThrow(() -> new EntityNotFoundException("Plan introuvable : id=" + id)));
     }
 
-    public PlanAlimentaireDTO getPlanByConsultationId(Long consultationId) {
-        return toDTO(planRepo.findByConsultationId(consultationId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Plan introuvable pour la consultation : id=" + consultationId)));
+    // ← Optional — ne lance plus d'exception si pas de plan
+    public Optional<PlanAlimentaireDTO> getPlanByConsultationId(Long consultationId) {
+        return planRepo.findByConsultationId(consultationId).map(this::toDTO);
     }
 
     public List<PlanAlimentaireDTO> getPlansByUserId(Long userId) {
@@ -58,15 +58,12 @@ public class PlanAlimentaireService {
     public PlanAlimentaireDTO createPlan(PlanAlimentaireDTO dto) {
         PlanAlimentaire plan = toEntity(dto);
 
-        // Lier à la consultation si fournie
+        // ← ifPresent — pas d'exception si consultation introuvable
         if (dto.getConsultationId() != null) {
-            Consultation consultation = consultationRepo.findById(dto.getConsultationId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            "Consultation introuvable : id=" + dto.getConsultationId()));
-            plan.setConsultation(consultation);
+            consultationRepo.findById(dto.getConsultationId())
+                    .ifPresent(plan::setConsultation);
         }
 
-        // Lier et sauvegarder les repas inclus dans le DTO
         if (dto.getRepas() != null && !dto.getRepas().isEmpty()) {
             List<Repas> repasList = dto.getRepas().stream()
                     .map(r -> repasToEntity(r, plan))
@@ -91,7 +88,11 @@ public class PlanAlimentaireService {
         existing.setNutritionnisteId(dto.getNutritionnisteId());
         existing.setRegimeId(dto.getRegimeId());
 
-        // Mettre à jour les repas si fournis
+        if (dto.getConsultationId() != null) {
+            consultationRepo.findById(dto.getConsultationId())
+                    .ifPresent(existing::setConsultation);
+        }
+
         if (dto.getRepas() != null) {
             existing.getRepas().clear();
             List<Repas> updatedRepas = dto.getRepas().stream()
@@ -109,7 +110,7 @@ public class PlanAlimentaireService {
         planRepo.deleteById(id);
     }
 
-    // ─── Mappers ─────────────────────────────────────────────────────────────
+    // ─── Mappers ──────────────────────────────────────────────────────────────
 
     private PlanAlimentaireDTO toDTO(PlanAlimentaire plan) {
         PlanAlimentaireDTO dto = new PlanAlimentaireDTO();
@@ -150,9 +151,9 @@ public class PlanAlimentaireService {
     private RepasDTO repasToDTO(Repas r) {
         RepasDTO dto = new RepasDTO();
         dto.setId(r.getId());
-        dto.setTypeRepas(r.getTypeRepas());         // ← corrigé (était getType())
+        dto.setTypeRepas(r.getTypeRepas());
         dto.setNom(r.getNom());
-        dto.setAliments(r.getAliments());           // ← corrigé (était getDescription())
+        dto.setAliments(r.getAliments());
         dto.setCalories(r.getCalories());
         dto.setProteines(r.getProteines());
         dto.setGlucides(r.getGlucides());
@@ -173,7 +174,7 @@ public class PlanAlimentaireService {
         r.setGlucides(dto.getGlucides());
         r.setLipides(dto.getLipides());
         r.setNotes(dto.getNotes());
-        r.setPlanAlimentaire(plan);                 // lien bidirectionnel
+        r.setPlanAlimentaire(plan);
         return r;
     }
 }

@@ -3,14 +3,19 @@ package com.example.backendhealth.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "consultations")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = "plansAlimentaires")
 public class Consultation {
 
+    @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,7 +30,7 @@ public class Consultation {
     private Long nutritionnisteId;
 
     @Column(name = "coach_id")
-    private Long coachId;              // ← was missing
+    private Long coachId;
 
     private Double poids;
     private Double taille;
@@ -41,10 +46,8 @@ public class Consultation {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
-    @OneToOne(mappedBy = "consultation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private PlanAlimentaire planAlimentaire;
+    @OneToMany(mappedBy = "consultation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PlanAlimentaire> plansAlimentaires;
 
     @Column(name = "date_consultation")
     private LocalDateTime dateConsultation;
@@ -54,7 +57,9 @@ public class Consultation {
 
     @PrePersist
     public void prePersist() {
-        this.dateConsultation = LocalDateTime.now();
+        if (this.dateConsultation == null) {
+            this.dateConsultation = LocalDateTime.now();
+        }
         calculerImc();
     }
 

@@ -41,5 +41,7 @@ public class Conversation {
 
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("sentAt ASC")
+    @Builder.Default
+
     private List<Message> messages = new ArrayList<>();
 }

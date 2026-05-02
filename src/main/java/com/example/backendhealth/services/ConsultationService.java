@@ -89,9 +89,9 @@ public class ConsultationService {
         dto.setTaille(c.getTaille());
         dto.setImc(c.getImc());
         dto.setObjectif(c.getObjectif());
-        // Récupère l'ID du plan lié s'il existe
-        if (c.getPlanAlimentaire() != null) {
-            dto.setPlanAlimentaireId(c.getPlanAlimentaire().getId());
+        // Récupère l'ID du premier plan lié s'il existe
+        if (c.getPlansAlimentaires() != null && !c.getPlansAlimentaires().isEmpty()) {
+            dto.setPlanAlimentaireId(c.getPlansAlimentaires().get(0).getId());
         }
         dto.setDiagnostic(c.getDiagnostic());
         dto.setRecommandations(c.getRecommandations());

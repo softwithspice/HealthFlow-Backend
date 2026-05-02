@@ -16,26 +16,24 @@ public class Repas {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Petit-déjeuner, Déjeuner, Dîner, Collation matin, Collation après-midi
-    @Column(name = "type_repas", nullable = false)
+    @Column(name = "type_repas")
     private String typeRepas;
 
-    @Column(nullable = false)
+    @Column
     private String nom;
 
     @Column(columnDefinition = "TEXT")
-    private String aliments;     // liste des aliments ex: "Poulet grillé, riz, salade"
+    private String aliments;
 
     private Integer calories;
-    private Double proteines;    // grammes
+    private Double proteines;
     private Double glucides;
     private Double lipides;
 
     @Column(columnDefinition = "TEXT")
     private String notes;
 
-    // Lié au plan alimentaire
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plan_alimentaire_id", nullable = false)
+    @JoinColumn(name = "plan_alimentaire_id")
     private PlanAlimentaire planAlimentaire;
 }
