@@ -5,7 +5,6 @@ import com.example.backendhealth.services.PlanAlimentaireService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -20,46 +19,37 @@ public class PlanAlimentaireController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PlanAlimentaireDTO>> getAllPlans() {
-        List<PlanAlimentaireDTO> plans = planAlimentaireService.getAllPlans();
-        return ResponseEntity.ok(plans);
+    public ResponseEntity<List<PlanAlimentaireDTO>> getAll() {
+        return ResponseEntity.ok(planAlimentaireService.getAllPlans());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlanAlimentaireDTO> getPlanById(@PathVariable Long id) {
-        PlanAlimentaireDTO plan = planAlimentaireService.getPlanById(id);
-        return ResponseEntity.ok(plan);
+    public ResponseEntity<PlanAlimentaireDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(planAlimentaireService.getPlanById(id));
     }
 
+    @GetMapping("/consultation/{consultationId}")
+    public ResponseEntity<PlanAlimentaireDTO> getByConsultation(@PathVariable Long consultationId) {
+        return ResponseEntity.ok(planAlimentaireService.getPlanByConsultationId(consultationId));
+    }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PlanAlimentaireDTO>> getPlansByUser(@PathVariable Long userId) {
-        List<PlanAlimentaireDTO> plans = planAlimentaireService.getPlansByUserId(userId);
-        return ResponseEntity.ok(plans);
-    }
-
-    @GetMapping("/regime/{regimeId}")
-    public ResponseEntity<List<PlanAlimentaireDTO>> getPlansByRegime(@PathVariable Long regimeId) {
-        List<PlanAlimentaireDTO> plans = planAlimentaireService.getPlansByRegimeId(regimeId);
-        return ResponseEntity.ok(plans);
+    public ResponseEntity<List<PlanAlimentaireDTO>> getByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(planAlimentaireService.getPlansByUserId(userId));
     }
 
     @PostMapping
-    public ResponseEntity<PlanAlimentaireDTO> createPlan(@RequestBody PlanAlimentaireDTO planDTO) {
-        PlanAlimentaireDTO created = planAlimentaireService.createPlan(planDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ResponseEntity<PlanAlimentaireDTO> create(@RequestBody PlanAlimentaireDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(planAlimentaireService.createPlan(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PlanAlimentaireDTO> updatePlan(
-            @PathVariable Long id,
-            @RequestBody PlanAlimentaireDTO planDTO) {
-        PlanAlimentaireDTO updated = planAlimentaireService.updatePlan(id, planDTO);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<PlanAlimentaireDTO> update(@PathVariable Long id, @RequestBody PlanAlimentaireDTO dto) {
+        return ResponseEntity.ok(planAlimentaireService.updatePlan(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePlan(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         planAlimentaireService.deletePlan(id);
         return ResponseEntity.noContent().build();
     }

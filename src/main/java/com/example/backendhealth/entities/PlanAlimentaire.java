@@ -1,14 +1,10 @@
 package com.example.backendhealth.entities;
-import lombok.ToString;
-import lombok.EqualsAndHashCode;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "plans_alimentaires")
@@ -41,12 +37,22 @@ public class PlanAlimentaire {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "regime_id")
-    private Long regimeId;
+    @Column(name = "nutritionniste_id")
+    private Long nutritionnisteId;
 
-    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @Column(name = "regime_id")
+    private Long regimeId;             // ← was missing
+
+    // Lien vers la consultation qui a généré ce plan
+    @OneToOne
+    @JoinColumn(name = "consultation_id", unique = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private List<Repas> repas;
+    private Consultation consultation;
+
+    // Repas du plan
+    @OneToMany(mappedBy = "planAlimentaire", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Repas> repas = new ArrayList<>();
 }
