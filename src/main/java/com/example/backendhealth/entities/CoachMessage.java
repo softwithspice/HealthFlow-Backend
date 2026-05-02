@@ -3,18 +3,19 @@ package com.example.backendhealth.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "messages")
+@Table(name = "coach_messages")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Message {
+public class CoachMessage {
 
     public enum SenderRole {
-        PATIENT, NUTRITIONIST
+        COACH, CLIENT
     }
 
     @Id
@@ -23,18 +24,20 @@ public class Message {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversation_id", nullable = false)
-    private Conversation conversation;
+    private CoachConversation conversation;
 
     @Column(nullable = false)
-    private Long senderId;
+    private String senderId;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private SenderRole senderRole;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    private boolean isRead;
+    @Builder.Default
+    private boolean isRead = false;
 
     @CreationTimestamp
     private LocalDateTime sentAt;

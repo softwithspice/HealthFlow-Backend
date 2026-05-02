@@ -4,20 +4,21 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "conversations")
+@Table(name = "coach_conversations")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Conversation {
+public class CoachConversation {
 
     public enum ConversationStatus {
-        ACTIVE, CLOSED, ARCHIVED
+        ACTIVE, CLOSED
     }
 
     @Id
@@ -25,13 +26,14 @@ public class Conversation {
     private Long id;
 
     @Column(nullable = false)
-    private Long patientId;
+    private String coachId;
 
     @Column(nullable = false)
-    private Long nutritionistId;
+    private String clientId;
 
     @Enumerated(EnumType.STRING)
-    private ConversationStatus status;
+    @Builder.Default
+    private ConversationStatus status = ConversationStatus.ACTIVE;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -41,5 +43,6 @@ public class Conversation {
 
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("sentAt ASC")
-    private List<Message> messages = new ArrayList<>();
+    @Builder.Default
+    private List<CoachMessage> messages = new ArrayList<>();
 }

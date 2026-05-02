@@ -4,42 +4,37 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "conversations")
+@Table(name = "coach_plan_assignments")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Conversation {
-
-    public enum ConversationStatus {
-        ACTIVE, CLOSED, ARCHIVED
-    }
+public class CoachPlanAssignment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private Long patientId;
+    private String coachId;
 
     @Column(nullable = false)
-    private Long nutritionistId;
+    private String clientId;
 
-    @Enumerated(EnumType.STRING)
-    private ConversationStatus status;
+    @Column(nullable = false)
+    private Long planExerciceId;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private String progressStatus = "On Track";
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @OrderBy("sentAt ASC")
-    private List<Message> messages = new ArrayList<>();
 }
