@@ -41,16 +41,15 @@ public class PlanAlimentaire {
     private Long nutritionnisteId;
 
     @Column(name = "regime_id")
-    private Long regimeId;             // ← was missing
+    private Long regimeId;
 
-    // Lien vers la consultation qui a généré ce plan
-    @OneToOne
-    @JoinColumn(name = "consultation_id", unique = true)
+    // ← ManyToOne badel OneToOne → plusieurs plans par consultation possible
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "consultation_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Consultation consultation;
 
-    // Repas du plan
     @OneToMany(mappedBy = "planAlimentaire", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
