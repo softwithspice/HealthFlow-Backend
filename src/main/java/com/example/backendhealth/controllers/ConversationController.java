@@ -17,7 +17,8 @@ public class ConversationController {
 
     @PostMapping
     public ResponseEntity<ConversationDTO> create(@RequestBody ConversationDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(conversationService.createConversation(dto));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(conversationService.createConversation(dto));
     }
 
     @GetMapping("/{id}")
@@ -33,6 +34,11 @@ public class ConversationController {
     @GetMapping("/nutritionist/{nutritionistId}")
     public ResponseEntity<List<ConversationDTO>> getByNutritionist(@PathVariable Long nutritionistId) {
         return ResponseEntity.ok(conversationService.getConversationsByNutritionist(nutritionistId));
+    }
+
+    @GetMapping("/coach/{coachId}")
+    public ResponseEntity<List<ConversationDTO>> getByCoach(@PathVariable Long coachId) {
+        return ResponseEntity.ok(conversationService.getConversationsByCoach(coachId));
     }
 
     @PatchMapping("/{id}/close")
