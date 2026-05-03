@@ -81,7 +81,7 @@ public class CoachDashboardService {
                 .collect(Collectors.groupingBy(CoachPlanAssignment::getClientId));
 
         List<user> roleClients = new ArrayList<>();
-        roleClients.addAll(userRepository.findByRole("BLOOMER"));
+      roleClients.addAll(userRepository.findByRole("BLOOMER"));
         roleClients.addAll(userRepository.findByRole("PATIENT"));
 
         Map<String, user> allClients = new LinkedHashMap<>();

@@ -1,10 +1,8 @@
 package com.example.backendhealth.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -13,16 +11,19 @@ public class Suivi_quotidien {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_suivi;
 
-    private Date date;
+    private LocalDate date;
     private Integer nb_coupes_bues;
     private Integer nb_exercices_faites;
     private Integer nb_heures_sommeil;
     private Integer calories_consommes;
     private Integer proteines_consommes;
-
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private user user;
     public Suivi_quotidien() {
     }
-
+    public user getUser() { return user; }
+    public void setUser(user user) { this.user = user; }
     public Integer getId_suivi() {
         return id_suivi;
     }
@@ -31,11 +32,11 @@ public class Suivi_quotidien {
         this.id_suivi = id_suivi;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

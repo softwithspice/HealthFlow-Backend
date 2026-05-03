@@ -3,7 +3,6 @@ package com.example.backendhealth.controllers;
 import com.example.backendhealth.entities.ObjectifPersonnel;
 import com.example.backendhealth.services.ObjectifService;
 import org.springframework.web.bind.annotation.*;
-
 @RestController
 @RequestMapping("/objectifs")
 @CrossOrigin("*")
@@ -14,44 +13,39 @@ public class ObjectifController {
     public ObjectifController(ObjectifService service) {
         this.service = service;
     }
-    @PostMapping
-    public ObjectifPersonnel create(@RequestBody ObjectifPersonnel objectif) {
-        return service.saveObjectif(objectif);
+
+    @GetMapping("/{userId}")
+    public ObjectifPersonnel getObjectif(@PathVariable String userId) {
+        return service.getByUserId(userId);
     }
 
-    @GetMapping("/{id}")
-    public ObjectifPersonnel getById(@PathVariable Integer id) {
-        return service.getById(id);
-    }
-
-    @PatchMapping("/{id}/eau")
-    public ObjectifPersonnel updateEau(@PathVariable Integer id,
+    @PatchMapping("/{userId}/eau")
+    public ObjectifPersonnel updateEau(@PathVariable String userId,
                                        @RequestBody Integer eau) {
-        return service.updateEau(id, eau);
+        return service.updateEau(userId, eau);
     }
 
-
-    @PatchMapping("/{id}/sommeil")
-    public ObjectifPersonnel updateSommeil(@PathVariable Integer id,
+    @PatchMapping("/{userId}/sommeil")
+    public ObjectifPersonnel updateSommeil(@PathVariable String userId,
                                            @RequestBody Integer sommeil) {
-        return service.updateSommeil(id, sommeil);
+        return service.updateSommeil(userId, sommeil);
     }
 
-
-    @PatchMapping("/{id}/exercices")
-    public ObjectifPersonnel updateExercices(@PathVariable Integer id,
+    @PatchMapping("/{userId}/exercices")
+    public ObjectifPersonnel updateExercices(@PathVariable String userId,
                                              @RequestBody Integer ex) {
-        return service.updateExercices(id, ex);
-    }
-    @PatchMapping("/{id}/calories")
-    public ObjectifPersonnel updateCalories(@PathVariable Integer id,
-                                            @RequestBody Integer cal) {
-        return service.updateCalories(id, cal);
+        return service.updateExercices(userId, ex);
     }
 
-    @PatchMapping("/{id}/proteines")
-    public ObjectifPersonnel updateProteines(@PathVariable Integer id,
+    @PatchMapping("/{userId}/calories")
+    public ObjectifPersonnel updateCalories(@PathVariable String userId,
+                                            @RequestBody Integer cal) {
+        return service.updateCalories(userId, cal);
+    }
+
+    @PatchMapping("/{userId}/proteines")
+    public ObjectifPersonnel updateProteines(@PathVariable String userId,
                                              @RequestBody Integer prot) {
-        return service.updateProteines(id, prot);
+        return service.updateProteines(userId, prot);
     }
 }

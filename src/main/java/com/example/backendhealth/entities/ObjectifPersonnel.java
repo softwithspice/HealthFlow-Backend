@@ -19,7 +19,13 @@ public class ObjectifPersonnel {
     private Integer objectif_exercices_semaine;
     private Integer objectif_calories;
     private Integer objectif_proteines;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private user user;
 
+
+    public user getUser() { return user; }
+    public void setUser(user user) { this.user = user; }
     public ObjectifPersonnel() {
     }
 

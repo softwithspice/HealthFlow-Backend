@@ -4,9 +4,9 @@ import com.example.backendhealth.entities.Suivi_quotidien;
 import com.example.backendhealth.services.SuiviService;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/suivi")
+@CrossOrigin("*")
 public class SuiviController {
 
     private final SuiviService service;
@@ -15,51 +15,36 @@ public class SuiviController {
         this.service = service;
     }
 
-
-
-    @GetMapping("/{id}")
-    public Suivi_quotidien getById(@PathVariable Integer id) {
-        return service.getSuivi(id);
+    @GetMapping("/{userId}")
+    public Suivi_quotidien getSuiviDuJour(@PathVariable String userId) {
+        return service.getSuiviDuJour(userId);
     }
 
-    @PostMapping
-    public Suivi_quotidien create() {
-        return service.createSuivi(new Suivi_quotidien());
+    @PutMapping("/{userId}/eau")
+    public Suivi_quotidien incrementEau(@PathVariable String userId) {
+        return service.incrementEau(userId);
     }
 
-    @PutMapping("/{id}/eau")
-    public Suivi_quotidien incrementEau(@PathVariable Integer id) {
-        return service.incrementEau(id);
+    @PutMapping("/{userId}/exercice")
+    public Suivi_quotidien incrementExercice(@PathVariable String userId) {
+        return service.incrementExercice(userId);
     }
 
-
-    @PutMapping("/{id}/exercice")
-    public Suivi_quotidien incrementExercice(@PathVariable Integer id) {
-        return service.incrementExercice(id);
+    @PutMapping("/{userId}/sommeil")
+    public Suivi_quotidien updateSommeil(@PathVariable String userId,
+                                         @RequestBody Integer heures) {
+        return service.updateSommeil(userId, heures);
     }
 
-
-    @PutMapping("/{id}/calories")
-    public Suivi_quotidien updateCalories(
-            @PathVariable Integer id,
-            @RequestBody Integer value
-    ) {
-        return service.updateCalories(id, value);
+    @PutMapping("/{userId}/calories")
+    public Suivi_quotidien updateCalories(@PathVariable String userId,
+                                          @RequestBody Integer cal) {
+        return service.updateCalories(userId, cal);
     }
 
-    @PutMapping("/{id}/proteines")
-    public Suivi_quotidien updateProteines(
-            @PathVariable Integer id,
-            @RequestBody Integer value
-    ) {
-        return service.updateProteines(id, value);
-    }
-
-    @PutMapping("/{id}/sommeil")
-    public Suivi_quotidien updateSommeil(
-            @PathVariable Integer id,
-            @RequestBody Integer value
-    ) {
-        return service.updateSommeil(id, value);
+    @PutMapping("/{userId}/proteines")
+    public Suivi_quotidien updateProteines(@PathVariable String userId,
+                                           @RequestBody Integer prot) {
+        return service.updateProteines(userId, prot);
     }
 }

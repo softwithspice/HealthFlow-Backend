@@ -1,73 +1,74 @@
 package com.example.backendhealth.services;
 
 import com.example.backendhealth.entities.Suivi_quotidien;
+import com.example.backendhealth.entities.user;
 import com.example.backendhealth.repositories.SuiviRepository;
+import com.example.backendhealth.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
-
 @Service
 public class SuiviService {
 
     private final SuiviRepository repository;
+    private final UserRepository userRepository; // ← ajoute
 
-    public SuiviService(SuiviRepository repository) {
+    public SuiviService(SuiviRepository repository, UserRepository userRepository) {
         this.repository = repository;
+        this.userRepository = userRepository;
     }
 
-    public Suivi_quotidien getSuivi(Integer id) {
-        return repository.findById(id).orElseThrow();
+    // Récupère ou crée le suivi du jour pour ce user
+    public Suivi_quotidien getSuiviDuJour(String userId) {
+        LocalDate today = LocalDate.now();
+        return repository.findByUserIdAndDate(userId, today)
+                .orElseGet(() -> createSuivi(userId));
     }
 
-    public Suivi_quotidien createSuivi(Suivi_quotidien suivi) {
+    private Suivi_quotidien createSuivi(String userId) {
+        user u = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User non trouvé"));
 
+        Suivi_quotidien suivi = new Suivi_quotidien();
+        suivi.setUser(u);
+        suivi.setDate(LocalDate.now());
         suivi.setNb_coupes_bues(0);
         suivi.setNb_exercices_faites(0);
         suivi.setNb_heures_sommeil(0);
         suivi.setCalories_consommes(0);
         suivi.setProteines_consommes(0);
-
-        if (suivi.getDate() == null) {
-            suivi.setDate(new java.util.Date());
-        }
-
         return repository.save(suivi);
     }
 
-
-    public Suivi_quotidien incrementEau(Integer id) {
-        Suivi_quotidien suivi = repository.findById(id).orElseThrow();
-
-        int current = suivi.getNb_coupes_bues() == null ? 0 : suivi.getNb_coupes_bues();
-        suivi.setNb_coupes_bues(current + 1);
-
+    public Suivi_quotidien incrementEau(String userId) {
+        Suivi_quotidien suivi = getSuiviDuJour(userId);
+        suivi.setNb_coupes_bues(suivi.getNb_coupes_bues() + 1);
         return repository.save(suivi);
     }
 
-    public Suivi_quotidien incrementExercice(Integer id) {
-        Suivi_quotidien suivi = repository.findById(id).orElseThrow();
-
-        int current = suivi.getNb_exercices_faites() == null ? 0 : suivi.getNb_exercices_faites();
-        suivi.setNb_exercices_faites(current + 1);
-
+    public Suivi_quotidien incrementExercice(String userId) {
+        Suivi_quotidien suivi = getSuiviDuJour(userId);
+        suivi.setNb_exercices_faites(suivi.getNb_exercices_faites() + 1);
         return repository.save(suivi);
     }
 
-    public Suivi_quotidien updateCalories(Integer id, Integer calories) {
-        Suivi_quotidien suivi = repository.findById(id).orElseThrow();
-        suivi.setCalories_consommes(calories);
-        return repository.save(suivi);
-    }
-
-    public Suivi_quotidien updateProteines(Integer id, Integer proteines) {
-        Suivi_quotidien suivi = repository.findById(id).orElseThrow();
-        suivi.setProteines_consommes(proteines);
-        return repository.save(suivi);
-    }
-
-    public Suivi_quotidien updateSommeil(Integer id, Integer heures) {
-        Suivi_quotidien suivi = repository.findById(id).orElseThrow();
+    public Suivi_quotidien updateSommeil(String userId, Integer heures) {
+        Suivi_quotidien suivi = getSuiviDuJour(userId);
         suivi.setNb_heures_sommeil(heures);
         return repository.save(suivi);
     }
+
+    public Suivi_quotidien updateCalories(String userId, Integer cal) {
+        Suivi_quotidien suivi = getSuiviDuJour(userId);
+        suivi.setCalories_consommes(cal);
+        return repository.save(suivi);
+    }
+
+    public Suivi_quotidien updateProteines(String userId, Integer prot) {
+        Suivi_quotidien suivi = getSuiviDuJour(userId);
+        suivi.setProteines_consommes(prot);
+        return repository.save(suivi);
+    }
+
 }
