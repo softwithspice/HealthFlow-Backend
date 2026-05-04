@@ -1,9 +1,14 @@
 package com.example.backendhealth.services;
 
 import com.example.backendhealth.dto.RendezVousDTO;
+import com.example.backendhealth.entities.Coach;
+import com.example.backendhealth.entities.Nutritionist;
 import com.example.backendhealth.entities.RendezVous;
 import com.example.backendhealth.entities.RendezVous.StatutRendezVous;
+import com.example.backendhealth.repositories.CoachRepository;
+import com.example.backendhealth.repositories.NutritionistRepository;
 import com.example.backendhealth.repositories.RendezVousRepository;
+import com.example.backendhealth.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -14,9 +19,27 @@ import java.util.stream.Collectors;
 public class RendezVousService {
 
     private final RendezVousRepository rdvRepo;
+    private final NutritionistRepository nutriRepo;
+    private final CoachRepository coachRepo;
+    private final UserRepository userRepo;
 
-    public RendezVousService(RendezVousRepository rdvRepo) {
+    public RendezVousService(RendezVousRepository rdvRepo,
+                             NutritionistRepository nutriRepo,
+                             CoachRepository coachRepo,
+                             UserRepository userRepo) {
         this.rdvRepo = rdvRepo;
+        this.nutriRepo = nutriRepo;
+        this.coachRepo = coachRepo;
+        this.userRepo = userRepo;
+    }
+
+    // ── Recherche par nom ──────────────────────────────────────────
+    public List<Nutritionist> rechercherNutritionnisteParNom(String nom) {
+        return nutriRepo.findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCase(nom, nom); // ✅ CORRECTION
+    }
+
+    public List<Coach> rechercherCoachParNom(String nom) {
+        return coachRepo.findByNomContainingIgnoreCase(nom);
     }
 
     public List<RendezVousDTO> getAllRendezVous() {
@@ -28,15 +51,15 @@ public class RendezVousService {
                 .orElseThrow(() -> new EntityNotFoundException("RendezVous introuvable : id=" + id)));
     }
 
-    public List<RendezVousDTO> getRendezVousByUserId(Long userId) {
+    public List<RendezVousDTO> getRendezVousByUserId(String userId) {
         return rdvRepo.findByUserId(userId).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<RendezVousDTO> getRendezVousByNutritionnisteId(Long nutritionnisteId) {
+    public List<RendezVousDTO> getRendezVousByNutritionnisteId(String nutritionnisteId) {
         return rdvRepo.findByNutritionnisteId(nutritionnisteId).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<RendezVousDTO> getRendezVousByCoachId(Long coachId) {
+    public List<RendezVousDTO> getRendezVousByCoachId(String coachId) {
         return rdvRepo.findByCoachId(coachId).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
@@ -44,38 +67,34 @@ public class RendezVousService {
         return rdvRepo.findByStatut(statut).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<RendezVousDTO> getRendezVousByUserIdAndStatut(Long userId, StatutRendezVous statut) {
+    public List<RendezVousDTO> getRendezVousByUserIdAndStatut(String userId, StatutRendezVous statut) {
         return rdvRepo.findByUserIdAndStatut(userId, statut).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<RendezVousDTO> getCalendrierNutritionniste(Long nutritionnisteId, LocalDateTime debut, LocalDateTime fin) {
+    public List<RendezVousDTO> getCalendrierNutritionniste(String nutritionnisteId, LocalDateTime debut, LocalDateTime fin) {
         return rdvRepo.findByNutritionnisteIdAndDateHeureBetween(nutritionnisteId, debut, fin)
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<RendezVousDTO> getCalendrierCoach(Long coachId, LocalDateTime debut, LocalDateTime fin) {
+    public List<RendezVousDTO> getCalendrierCoach(String coachId, LocalDateTime debut, LocalDateTime fin) {
         return rdvRepo.findByCoachIdAndDateHeureBetween(coachId, debut, fin)
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ── Patient crée un RDV ────────────────────────────────────────
     public RendezVousDTO createRendezVous(RendezVousDTO dto) {
         RendezVous rdv = toEntity(dto);
         rdv.setStatut(StatutRendezVous.EN_ATTENTE);
         return toDTO(rdvRepo.save(rdv));
     }
 
-    // ── Nutritionniste accepte le RDV ──────────────────────────────
     public RendezVousDTO accepterRendezVous(Long id) {
         return updateStatut(id, StatutRendezVous.CONFIRME);
     }
 
-    // ── Nutritionniste refuse le RDV ───────────────────────────────
     public RendezVousDTO refuserRendezVous(Long id) {
         return updateStatut(id, StatutRendezVous.ANNULE);
     }
 
-    // ── Marquer RDV comme terminé (après consultation) ────────────
     public RendezVousDTO terminerRendezVous(Long id) {
         return updateStatut(id, StatutRendezVous.TERMINE);
     }
@@ -120,6 +139,24 @@ public class RendezVousService {
         dto.setUserId(rdv.getUserId());
         dto.setNutritionnisteId(rdv.getNutritionnisteId());
         dto.setCoachId(rdv.getCoachId());
+
+        if (rdv.getNutritionnisteId() != null) {
+            nutriRepo.findById(rdv.getNutritionnisteId()).ifPresent(n -> {
+                dto.setNutritionnistNom(n.getNom());
+                dto.setNutritionnistPrenom(n.getPrenom());
+            });
+        }
+        if (rdv.getCoachId() != null) {
+            coachRepo.findById(rdv.getCoachId()).ifPresent(c -> {
+                dto.setCoachNom(c.getNom());
+                dto.setCoachPrenom(c.getPrenom());
+            });
+        }
+        if (rdv.getUserId() != null) {
+            userRepo.findById(rdv.getUserId()).ifPresent(u ->
+                    dto.setPatientNom(u.getNom() + " " + u.getPrenom())
+            );
+        }
         return dto;
     }
 

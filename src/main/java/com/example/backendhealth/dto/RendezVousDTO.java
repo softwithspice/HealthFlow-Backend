@@ -11,15 +11,30 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RendezVousDTO {
-
     private Long id;
+
     private LocalDateTime dateHeure;
     private StatutRendezVous statut;
     private TypeIntervenant typeIntervenant;
     private String motif;
     private String notes;
     private Integer dureeMinutes;
-    private Long userId;
-    private Long nutritionnisteId;
-    private Long coachId;
+
+    // ✅ String car UUID
+    private String userId;
+    private String nutritionnisteId;
+    private String coachId;
+
+    // Infos affichage (read-only)
+    private String nutritionnisteNom;
+    private String nutritionnistePrenom;
+    private String coachNom;
+    private String coachPrenom;
+    private String patientNom;
+
+    public void setNutritionnistPrenom(String prenom) {
+    }
+
+    public void setNutritionnistNom(String nom) {
+    }
 }

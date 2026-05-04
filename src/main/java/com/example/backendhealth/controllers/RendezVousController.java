@@ -1,6 +1,8 @@
 package com.example.backendhealth.controllers;
 
 import com.example.backendhealth.dto.RendezVousDTO;
+import com.example.backendhealth.entities.Coach;
+import com.example.backendhealth.entities.Nutritionist;
 import com.example.backendhealth.entities.RendezVous.StatutRendezVous;
 import com.example.backendhealth.services.RendezVousService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,6 +23,30 @@ public class RendezVousController {
         this.rdvService = rdvService;
     }
 
+    // ── GET ALL NUTRITIONNISTES ────────────────────────────────────
+    @GetMapping("/nutritionnistes")
+    public ResponseEntity<List<Nutritionist>> getAllNutritionnistes() {
+        return ResponseEntity.ok(rdvService.rechercherNutritionnisteParNom(""));
+    }
+
+    // ── GET ALL COACHS ─────────────────────────────────────────────
+    @GetMapping("/coachs")
+    public ResponseEntity<List<Coach>> getAllCoachs() {
+        return ResponseEntity.ok(rdvService.rechercherCoachParNom(""));
+    }
+
+    // ── Patient cherche nutritionniste par nom ─────────────────────
+    @GetMapping("/nutritionnistes/search")
+    public ResponseEntity<List<Nutritionist>> searchNutritionniste(@RequestParam String nom) {
+        return ResponseEntity.ok(rdvService.rechercherNutritionnisteParNom(nom));
+    }
+
+    // ── Patient cherche coach par nom ──────────────────────────────
+    @GetMapping("/coachs/search")
+    public ResponseEntity<List<Coach>> searchCoach(@RequestParam String nom) {
+        return ResponseEntity.ok(rdvService.rechercherCoachParNom(nom));
+    }
+
     @GetMapping
     public ResponseEntity<List<RendezVousDTO>> getAll() {
         return ResponseEntity.ok(rdvService.getAllRendezVous());
@@ -32,17 +58,17 @@ public class RendezVousController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<RendezVousDTO>> getByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<RendezVousDTO>> getByUser(@PathVariable String userId) {
         return ResponseEntity.ok(rdvService.getRendezVousByUserId(userId));
     }
 
     @GetMapping("/nutritionniste/{nutritionnisteId}")
-    public ResponseEntity<List<RendezVousDTO>> getByNutritionniste(@PathVariable Long nutritionnisteId) {
+    public ResponseEntity<List<RendezVousDTO>> getByNutritionniste(@PathVariable String nutritionnisteId) {
         return ResponseEntity.ok(rdvService.getRendezVousByNutritionnisteId(nutritionnisteId));
     }
 
     @GetMapping("/coach/{coachId}")
-    public ResponseEntity<List<RendezVousDTO>> getByCoach(@PathVariable Long coachId) {
+    public ResponseEntity<List<RendezVousDTO>> getByCoach(@PathVariable String coachId) {
         return ResponseEntity.ok(rdvService.getRendezVousByCoachId(coachId));
     }
 
@@ -53,13 +79,13 @@ public class RendezVousController {
 
     @GetMapping("/user/{userId}/statut/{statut}")
     public ResponseEntity<List<RendezVousDTO>> getByUserAndStatut(
-            @PathVariable Long userId, @PathVariable StatutRendezVous statut) {
+            @PathVariable String userId, @PathVariable StatutRendezVous statut) {
         return ResponseEntity.ok(rdvService.getRendezVousByUserIdAndStatut(userId, statut));
     }
 
     @GetMapping("/calendrier/nutritionniste/{nutritionnisteId}")
     public ResponseEntity<List<RendezVousDTO>> getCalendrierNutritionniste(
-            @PathVariable Long nutritionnisteId,
+            @PathVariable String nutritionnisteId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime debut,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
         return ResponseEntity.ok(rdvService.getCalendrierNutritionniste(nutritionnisteId, debut, fin));
@@ -67,7 +93,7 @@ public class RendezVousController {
 
     @GetMapping("/calendrier/coach/{coachId}")
     public ResponseEntity<List<RendezVousDTO>> getCalendrierCoach(
-            @PathVariable Long coachId,
+            @PathVariable String coachId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime debut,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
         return ResponseEntity.ok(rdvService.getCalendrierCoach(coachId, debut, fin));
@@ -78,19 +104,16 @@ public class RendezVousController {
         return ResponseEntity.status(HttpStatus.CREATED).body(rdvService.createRendezVous(dto));
     }
 
-    // ── Nutritionniste accepte le RDV ──────────────────────────────
     @PatchMapping("/{id}/accepter")
     public ResponseEntity<RendezVousDTO> accepter(@PathVariable Long id) {
         return ResponseEntity.ok(rdvService.accepterRendezVous(id));
     }
 
-    // ── Nutritionniste refuse le RDV ───────────────────────────────
     @PatchMapping("/{id}/refuser")
     public ResponseEntity<RendezVousDTO> refuser(@PathVariable Long id) {
         return ResponseEntity.ok(rdvService.refuserRendezVous(id));
     }
 
-    // ── Marquer comme terminé ──────────────────────────────────────
     @PatchMapping("/{id}/terminer")
     public ResponseEntity<RendezVousDTO> terminer(@PathVariable Long id) {
         return ResponseEntity.ok(rdvService.terminerRendezVous(id));
@@ -102,7 +125,8 @@ public class RendezVousController {
     }
 
     @PatchMapping("/{id}/statut/{statut}")
-    public ResponseEntity<RendezVousDTO> updateStatut(@PathVariable Long id, @PathVariable StatutRendezVous statut) {
+    public ResponseEntity<RendezVousDTO> updateStatut(
+            @PathVariable Long id, @PathVariable StatutRendezVous statut) {
         return ResponseEntity.ok(rdvService.updateStatut(id, statut));
     }
 

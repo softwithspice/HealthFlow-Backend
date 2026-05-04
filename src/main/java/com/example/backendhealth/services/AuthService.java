@@ -4,8 +4,12 @@ import com.example.backendhealth.dto.AbonnementDTO;
 import com.example.backendhealth.dto.LoginDTO;
 import com.example.backendhealth.dto.RegisterDTO;
 import com.example.backendhealth.entities.Abonnement;
+import com.example.backendhealth.entities.Bloomer;
+import com.example.backendhealth.entities.Nutritionist;
 import com.example.backendhealth.entities.user;
 import com.example.backendhealth.repositories.AbonnementRepository;
+import com.example.backendhealth.repositories.BloomerRepository;
+import com.example.backendhealth.repositories.NutritionistRepository;
 import com.example.backendhealth.repositories.UserRepository;
 import com.example.backendhealth.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,35 +32,74 @@ public class AuthService {
   private AbonnementRepository abonnementRepository;
 
   @Autowired
+  private NutritionistRepository nutritionistRepository; // ✅ AJOUTÉ
+
+  @Autowired
+  private BloomerRepository bloomerRepository;           // ✅ AJOUTÉ
+
+  @Autowired
   private JwtUtil jwtUtil;
 
   @Autowired
   private PasswordEncoder passwordEncoder;
 
   // ─── REGISTER SIMPLE ──────────────────────────────────────────────────────
+  @Transactional
   public Map<String, String> register(RegisterDTO dto) {
     if (userRepository.existsByEmail(dto.getEmail())) {
       throw new RuntimeException("Email déjà utilisé !");
     }
 
+    // 1. Créer l'utilisateur de base
     user newUser = new user();
     newUser.setNom(dto.getNom());
     newUser.setPrenom(dto.getPrenom());
     newUser.setEmail(dto.getEmail());
     newUser.setTel(dto.getTel());
-    newUser.setRole(dto.getRole() != null ? dto.getRole() : "NUTRITIONIST");
+    newUser.setRole(dto.getRole() != null ? dto.getRole() : "BLOOMER");
     newUser.setPwd(passwordEncoder.encode(dto.getPwd()));
     newUser.setActive(true);
     userRepository.save(newUser);
 
+    // 2. ✅ Sauvegarder dans la table spécifique selon le rôle
+    if ("NUTRITIONIST".equals(dto.getRole())) {
+      Nutritionist nutri = new Nutritionist();
+      nutri.setNom(dto.getNom());
+      nutri.setPrenom(dto.getPrenom());
+      nutri.setEmail(dto.getEmail());
+      nutri.setTel(dto.getTel());
+      nutri.setSpecialite(dto.getSpecialite());
+      nutri.setLocalisation(dto.getLocalisation());
+      nutri.setUserEntity(newUser);
+      nutritionistRepository.save(nutri);
+
+    } else if ("BLOOMER".equals(dto.getRole())) {
+      Bloomer bloomer = new Bloomer();
+      bloomer.setNom(dto.getNom());
+      bloomer.setPrenom(dto.getPrenom());
+      bloomer.setEmail(dto.getEmail());
+      bloomer.setTel(dto.getTel());
+      bloomer.setAge(dto.getAge());
+      bloomer.setHeight(dto.getHeight());
+      bloomer.setWeight(dto.getWeight());
+      bloomer.setGoal(dto.getGoal());
+      bloomer.setLifestyleLevel(dto.getLifestyleLevel());
+      bloomer.setUserEntity(newUser);
+      bloomerRepository.save(bloomer);
+    }
+
+    // 3. Générer token
     String token = jwtUtil.generateToken(newUser.getEmail(), newUser.getRole());
 
     Map<String, String> response = new HashMap<>();
     response.put("token", token);
     response.put("email", newUser.getEmail());
     response.put("role", newUser.getRole());
+    response.put("id", String.valueOf(newUser.getId()));
+    response.put("nom", newUser.getNom());
+    response.put("prenom", newUser.getPrenom());
     response.put("typeAbonnement",
-      dto.getTypeAbonnement() != null ? dto.getTypeAbonnement() : "MOIS_1");
+            dto.getTypeAbonnement() != null ? dto.getTypeAbonnement() : "MOIS_1");
     response.put("message", "Inscription réussie !");
     return response;
   }
@@ -70,20 +113,47 @@ public class AuthService {
       throw new RuntimeException("Email déjà utilisé !");
     }
 
-    // 1. Créer l'utilisateur
+    // 1. Créer l'utilisateur de base
     user newUser = new user();
     newUser.setNom(registerDTO.getNom());
     newUser.setPrenom(registerDTO.getPrenom());
     newUser.setEmail(registerDTO.getEmail());
     newUser.setTel(registerDTO.getTel());
-    newUser.setRole(registerDTO.getRole() != null ? registerDTO.getRole() : "NUTRITIONIST");
+    newUser.setRole(registerDTO.getRole() != null ? registerDTO.getRole() : "BLOOMER");
     newUser.setPwd(passwordEncoder.encode(registerDTO.getPwd()));
     newUser.setActive(true);
     userRepository.save(newUser);
 
-    // 2. Créer l'abonnement directement (sans appel HTTP)
+    // 2. ✅ Sauvegarder dans la table spécifique selon le rôle
+    if ("NUTRITIONIST".equals(registerDTO.getRole())) {
+      Nutritionist nutri = new Nutritionist();
+      nutri.setNom(registerDTO.getNom());
+      nutri.setPrenom(registerDTO.getPrenom());
+      nutri.setEmail(registerDTO.getEmail());
+      nutri.setTel(registerDTO.getTel());
+      nutri.setSpecialite(registerDTO.getSpecialite());
+      nutri.setLocalisation(registerDTO.getLocalisation());
+      nutri.setUserEntity(newUser);
+      nutritionistRepository.save(nutri);
+
+    } else if ("BLOOMER".equals(registerDTO.getRole())) {
+      Bloomer bloomer = new Bloomer();
+      bloomer.setNom(registerDTO.getNom());
+      bloomer.setPrenom(registerDTO.getPrenom());
+      bloomer.setEmail(registerDTO.getEmail());
+      bloomer.setTel(registerDTO.getTel());
+      bloomer.setAge(registerDTO.getAge());
+      bloomer.setHeight(registerDTO.getHeight());
+      bloomer.setWeight(registerDTO.getWeight());
+      bloomer.setGoal(registerDTO.getGoal());
+      bloomer.setLifestyleLevel(registerDTO.getLifestyleLevel());
+      bloomer.setUserEntity(newUser);
+      bloomerRepository.save(bloomer);
+    }
+
+    // 3. Créer l'abonnement
     Abonnement.TypeAbonnement type =
-      Abonnement.TypeAbonnement.valueOf(paymentRequest.getTypeAbonnement());
+            Abonnement.TypeAbonnement.valueOf(paymentRequest.getTypeAbonnement());
 
     Abonnement abonnement = new Abonnement();
     abonnement.setType_abonnement(type);
@@ -95,13 +165,16 @@ public class AuthService {
     abonnement.setUserEntity(newUser);
     abonnementRepository.save(abonnement);
 
-    // 3. Générer token
+    // 4. Générer token
     String token = jwtUtil.generateToken(newUser.getEmail(), newUser.getRole());
 
     Map<String, String> response = new HashMap<>();
     response.put("token", token);
     response.put("email", newUser.getEmail());
     response.put("role", newUser.getRole());
+    response.put("id", String.valueOf(newUser.getId()));
+    response.put("nom", newUser.getNom());
+    response.put("prenom", newUser.getPrenom());
     response.put("message", "Inscription et paiement réussis !");
     return response;
   }
@@ -109,7 +182,7 @@ public class AuthService {
   // ─── LOGIN ────────────────────────────────────────────────────────────────
   public Map<String, String> login(LoginDTO dto) {
     user u = userRepository.findByEmail(dto.getEmail())
-      .orElseThrow(() -> new RuntimeException("Email introuvable !"));
+            .orElseThrow(() -> new RuntimeException("Email introuvable !"));
 
     if (!passwordEncoder.matches(dto.getPwd(), u.getPwd())) {
       throw new RuntimeException("Mot de passe incorrect !");
@@ -125,6 +198,8 @@ public class AuthService {
     response.put("role", u.getRole());
     response.put("nom", u.getNom());
     response.put("prenom", u.getPrenom());
+    response.put("email", u.getEmail());
+    response.put("id", String.valueOf(u.getId()));
     response.put("message", "Connexion réussie !");
     return response;
   }

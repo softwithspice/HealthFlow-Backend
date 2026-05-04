@@ -15,7 +15,7 @@ public class RendezVous {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id;  // RDV garde Long pour son propre ID
 
     @Column(name = "date_heure", nullable = false)
     private LocalDateTime dateHeure;
@@ -36,25 +36,21 @@ public class RendezVous {
     @Column(name = "duree_minutes")
     private Integer dureeMinutes = 60;
 
+    // ✅ String car user utilise UUID
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private String userId;
 
     @Column(name = "nutritionniste_id")
-    private Long nutritionnisteId;
+    private String nutritionnisteId;
 
     @Column(name = "coach_id")
-    private Long coachId;
+    private String coachId;
 
     public enum StatutRendezVous {
-        EN_ATTENTE,
-        CONFIRME,
-        ANNULE,
-        TERMINE
+        EN_ATTENTE, CONFIRME, ANNULE, TERMINE
     }
 
     public enum TypeIntervenant {
-        NUTRITIONNISTE,
-        COACH,
-        LES_DEUX
+        NUTRITIONNISTE, COACH, LES_DEUX
     }
 }
