@@ -13,9 +13,13 @@ public class PlanAlimentaireDTO {
     private LocalDate dateFin;
     private Integer caloriesJournalieres;
     private String objectif;
-    private Long userId;
-    private Long nutritionnisteId;
+
+    private String userId;           // ✅ String UUID (pas Long)
+    private String nutritionnisteId; // ✅ String UUID (pas Long)
+
     private Long regimeId;
-    private Long consultationId;       // ← lien vers la consultation
-    private List<RepasDTO> repas;      // ← repas inclus dans le plan
+    private Long consultationId;
+    private Long rendezVousId;       // ✅ ajouté pour le lien RDV
+
+    private List<RepasDTO> repas;
 }

@@ -47,7 +47,7 @@ public class RendezVous {
     private String coachId;
 
     public enum StatutRendezVous {
-        EN_ATTENTE, CONFIRME, ANNULE, TERMINE
+        EN_ATTENTE, CONFIRME, REFUSE, ANNULE, TERMINE
     }
 
     public enum TypeIntervenant {

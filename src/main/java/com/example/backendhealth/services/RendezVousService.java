@@ -5,6 +5,7 @@ import com.example.backendhealth.entities.Coach;
 import com.example.backendhealth.entities.Nutritionist;
 import com.example.backendhealth.entities.RendezVous;
 import com.example.backendhealth.entities.RendezVous.StatutRendezVous;
+import com.example.backendhealth.entities.user;
 import com.example.backendhealth.repositories.CoachRepository;
 import com.example.backendhealth.repositories.NutritionistRepository;
 import com.example.backendhealth.repositories.RendezVousRepository;
@@ -12,7 +13,10 @@ import com.example.backendhealth.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,19 +27,23 @@ public class RendezVousService {
     private final CoachRepository coachRepo;
     private final UserRepository userRepo;
 
+    // ✅ Cache pour éviter N+1 queries
+    private final Map<String, Nutritionist> nutriCache = new HashMap<>();
+    private final Map<String, Coach>        coachCache = new HashMap<>();
+    private final Map<String, user>         userCache  = new HashMap<>();
+
     public RendezVousService(RendezVousRepository rdvRepo,
                              NutritionistRepository nutriRepo,
                              CoachRepository coachRepo,
                              UserRepository userRepo) {
-        this.rdvRepo = rdvRepo;
+        this.rdvRepo   = rdvRepo;
         this.nutriRepo = nutriRepo;
         this.coachRepo = coachRepo;
-        this.userRepo = userRepo;
+        this.userRepo  = userRepo;
     }
 
-    // ── Recherche par nom ──────────────────────────────────────────
     public List<Nutritionist> rechercherNutritionnisteParNom(String nom) {
-        return nutriRepo.findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCase(nom, nom); // ✅ CORRECTION
+        return nutriRepo.findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCase(nom, nom);
     }
 
     public List<Coach> rechercherCoachParNom(String nom) {
@@ -92,7 +100,7 @@ public class RendezVousService {
     }
 
     public RendezVousDTO refuserRendezVous(Long id) {
-        return updateStatut(id, StatutRendezVous.ANNULE);
+        return updateStatut(id, StatutRendezVous.REFUSE);
     }
 
     public RendezVousDTO terminerRendezVous(Long id) {
@@ -140,23 +148,41 @@ public class RendezVousService {
         dto.setNutritionnisteId(rdv.getNutritionnisteId());
         dto.setCoachId(rdv.getCoachId());
 
+        // ✅ Cache nutritionniste — 1 seule requête par nutritionniste
         if (rdv.getNutritionnisteId() != null) {
-            nutriRepo.findById(rdv.getNutritionnisteId()).ifPresent(n -> {
+            Nutritionist n = nutriCache.computeIfAbsent(
+                    rdv.getNutritionnisteId(),
+                    id -> nutriRepo.findById(id).orElse(null)
+            );
+            if (n != null) {
                 dto.setNutritionnistNom(n.getNom());
                 dto.setNutritionnistPrenom(n.getPrenom());
-            });
+            }
         }
+
+        // ✅ Cache coach — 1 seule requête par coach
         if (rdv.getCoachId() != null) {
-            coachRepo.findById(rdv.getCoachId()).ifPresent(c -> {
+            Coach c = coachCache.computeIfAbsent(
+                    rdv.getCoachId(),
+                    id -> coachRepo.findById(id).orElse(null)
+            );
+            if (c != null) {
                 dto.setCoachNom(c.getNom());
                 dto.setCoachPrenom(c.getPrenom());
-            });
+            }
         }
+
+        // ✅ Cache user — 1 seule requête par patient
         if (rdv.getUserId() != null) {
-            userRepo.findById(rdv.getUserId()).ifPresent(u ->
-                    dto.setPatientNom(u.getNom() + " " + u.getPrenom())
+            user u = userCache.computeIfAbsent(
+                    rdv.getUserId(),
+                    id -> userRepo.findById(id).orElse(null)
             );
+            if (u != null) {
+                dto.setPatientNom(u.getNom() + " " + u.getPrenom());
+            }
         }
+
         return dto;
     }
 
