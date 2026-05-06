@@ -55,6 +55,7 @@ public class AuthService {
     response.put("token", token);
     response.put("email", newUser.getEmail());
     response.put("role", newUser.getRole());
+    response.put("userId", String.valueOf(newUser.getId()));
     response.put("typeAbonnement",
       dto.getTypeAbonnement() != null ? dto.getTypeAbonnement() : "MOIS_1");
     response.put("message", "Inscription réussie !");
@@ -102,6 +103,7 @@ public class AuthService {
     response.put("token", token);
     response.put("email", newUser.getEmail());
     response.put("role", newUser.getRole());
+    response.put("userId", newUser.getId());
     response.put("message", "Inscription et paiement réussis !");
     return response;
   }
@@ -125,6 +127,7 @@ public class AuthService {
     response.put("role", u.getRole());
     response.put("nom", u.getNom());
     response.put("prenom", u.getPrenom());
+    response.put("userId", u.getId());
     response.put("message", "Connexion réussie !");
     return response;
   }
