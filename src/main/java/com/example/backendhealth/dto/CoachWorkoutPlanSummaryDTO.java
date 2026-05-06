@@ -12,4 +12,5 @@ public class CoachWorkoutPlanSummaryDTO {
     private Integer dureeSemaines;
     private Integer seancesParSemaine;
     private long assignedClientsCount;
+    private int exercisesCount;
 }

@@ -9,4 +9,6 @@ import java.util.List;
 public interface ExerciceRepository extends JpaRepository<Exercice, Long> {
 
     List<Exercice> findByPlanExerciceId(Long planId);
+
+    long countByPlanExerciceId(Long planId);
 }

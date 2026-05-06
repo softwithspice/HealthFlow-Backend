@@ -28,8 +28,8 @@ public class Exercice {
     private Integer tempsReposSecondes;
     private Double poidsKg;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plan_exercice_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "plan_exercice_id", nullable = true)
     private PlanExercice planExercice;
 
     @CreationTimestamp

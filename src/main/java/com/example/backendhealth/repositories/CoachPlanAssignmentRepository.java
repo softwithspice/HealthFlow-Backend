@@ -12,4 +12,5 @@ public interface CoachPlanAssignmentRepository extends JpaRepository<CoachPlanAs
     long countByCoachId(String coachId);
     long countByCoachIdAndPlanExerciceId(String coachId, Long planExerciceId);
     Optional<CoachPlanAssignment> findByCoachIdAndClientIdAndPlanExerciceId(String coachId, String clientId, Long planExerciceId);
+    void deleteByPlanExerciceId(Long planExerciceId);
 }

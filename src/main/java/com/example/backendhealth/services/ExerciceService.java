@@ -34,16 +34,23 @@ public class ExerciceService {
     }
 
     public ExerciceDto create(ExerciceDto dto) {
-        PlanExercice plan = planExerciceRepository.findById(dto.getPlanExerciceId())
+        PlanExercice plan = null;
+        if (dto.getPlanExerciceId() != null) {
+            plan = planExerciceRepository.findById(dto.getPlanExerciceId())
                 .orElseThrow(() -> new RuntimeException("Plan non trouvé avec l'id : " + dto.getPlanExerciceId()));
+        }
         return toDto(exerciceRepository.save(toEntity(dto, plan)));
     }
 
     public ExerciceDto update(Long id, ExerciceDto dto) {
         Exercice exercice = exerciceRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exercice non trouvé avec l'id : " + id));
-        PlanExercice plan = planExerciceRepository.findById(dto.getPlanExerciceId())
+        
+        PlanExercice plan = null;
+        if (dto.getPlanExerciceId() != null) {
+            plan = planExerciceRepository.findById(dto.getPlanExerciceId())
                 .orElseThrow(() -> new RuntimeException("Plan non trouvé avec l'id : " + dto.getPlanExerciceId()));
+        }
 
         exercice.setNom(dto.getNom());
         exercice.setDescription(dto.getDescription());
@@ -73,7 +80,7 @@ public class ExerciceService {
                 .dureeSecondes(e.getDureeSecondes())
                 .tempsReposSecondes(e.getTempsReposSecondes())
                 .poidsKg(e.getPoidsKg())
-                .planExerciceId(e.getPlanExercice().getId())
+                .planExerciceId(e.getPlanExercice() != null ? e.getPlanExercice().getId() : null)
                 .createdAt(e.getCreatedAt())
                 .updatedAt(e.getUpdatedAt())
                 .build();

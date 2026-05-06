@@ -68,6 +68,7 @@ public class CoachDashboardService {
                         .dureeSemaines(plan.getDureeSemaines())
                         .seancesParSemaine(plan.getSeancesParSemaine())
                         .assignedClientsCount(assignmentRepository.countByCoachIdAndPlanExerciceId(coachId, plan.getId()))
+                        .exercisesCount((int) exerciceRepository.countByPlanExerciceId(plan.getId()))
                         .build())
                 .collect(Collectors.toList());
     }
