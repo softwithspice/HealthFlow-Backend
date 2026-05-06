@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface PlanAlimentaireRepository extends JpaRepository<PlanAlimentaire, Long> {
 
-    List<PlanAlimentaire> findByUserId(Long userId);
+    List<PlanAlimentaire> findByUserId(String userId);
 
     List<PlanAlimentaire> findByRegimeId(Long regimeId);
 

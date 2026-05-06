@@ -20,6 +20,11 @@ public class Conversation {
         ACTIVE, CLOSED, ARCHIVED
     }
 
+    public enum ConversationType {
+        NUTRITIONIST_PATIENT,
+        COACH_PATIENT
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,8 +32,18 @@ public class Conversation {
     @Column(nullable = false)
     private Long patientId;
 
-    @Column(nullable = false)
+    // nullable — utilisé seulement si type = NUTRITIONIST_PATIENT
+    @Column
     private Long nutritionistId;
+
+    // nullable — utilisé seulement si type = COACH_PATIENT
+    @Column
+    private Long coachId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private ConversationType type = ConversationType.NUTRITIONIST_PATIENT;
 
     @Enumerated(EnumType.STRING)
     private ConversationStatus status;
@@ -42,6 +57,5 @@ public class Conversation {
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("sentAt ASC")
     @Builder.Default
-
     private List<Message> messages = new ArrayList<>();
 }

@@ -27,4 +27,7 @@ public class Bloomer extends user {
 
     public String getLifestyleLevel() { return lifestyleLevel; }
     public void setLifestyleLevel(String lifestyleLevel) { this.lifestyleLevel = lifestyleLevel; }
+
+    public void setUserEntity(user newUser) {
+    }
 }

@@ -15,4 +15,7 @@ public class Nutritionist extends user {
 
     public String getLocalisation() { return localisation; }
     public void setLocalisation(String localisation) { this.localisation = localisation; }
+
+    public void setUserEntity(user newUser) {
+    }
 }

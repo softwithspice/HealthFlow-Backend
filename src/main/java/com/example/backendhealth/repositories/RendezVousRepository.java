@@ -9,12 +9,14 @@ import java.util.List;
 
 @Repository
 public interface RendezVousRepository extends JpaRepository<RendezVous, Long> {
-    List<RendezVous> findByUserId(Long userId);
-    List<RendezVous> findByNutritionnisteId(Long nutritionnisteId);
-    List<RendezVous> findByCoachId(Long coachId);
+
+    // ✅ String car UUID
+    List<RendezVous> findByUserId(String userId);
+    List<RendezVous> findByNutritionnisteId(String nutritionnisteId);
+    List<RendezVous> findByCoachId(String coachId);
     List<RendezVous> findByStatut(StatutRendezVous statut);
-    List<RendezVous> findByUserIdAndStatut(Long userId, StatutRendezVous statut);
+    List<RendezVous> findByUserIdAndStatut(String userId, StatutRendezVous statut);
     List<RendezVous> findByDateHeureBetween(LocalDateTime debut, LocalDateTime fin);
-    List<RendezVous> findByNutritionnisteIdAndDateHeureBetween(Long nutritionnisteId, LocalDateTime debut, LocalDateTime fin);
-    List<RendezVous> findByCoachIdAndDateHeureBetween(Long coachId, LocalDateTime debut, LocalDateTime fin);
+    List<RendezVous> findByNutritionnisteIdAndDateHeureBetween(String nutritionnisteId, LocalDateTime debut, LocalDateTime fin);
+    List<RendezVous> findByCoachIdAndDateHeureBetween(String coachId, LocalDateTime debut, LocalDateTime fin);
 }

@@ -38,7 +38,7 @@ public class PlanAlimentaireController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PlanAlimentaireDTO>> getByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<PlanAlimentaireDTO>> getByUser(@PathVariable String userId) {
         return ResponseEntity.ok(planAlimentaireService.getPlansByUserId(userId));
     }
 
