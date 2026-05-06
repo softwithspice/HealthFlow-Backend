@@ -8,7 +8,9 @@ import java.util.Optional;
 
 public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
     Optional<Consultation> findByRendezVousId(Long rendezVousId);
-    List<Consultation> findByUserId(Long userId);
-    List<Consultation> findByNutritionnisteId(Long nutritionnisteId);
-    List<Consultation> findByCoachId(Long coachId);   // ← was missing
+
+    // ✅ Changer Long → String
+    List<Consultation> findByUserId(String userId);
+    List<Consultation> findByNutritionnisteId(String nutritionnisteId);
+    List<Consultation> findByCoachId(String coachId);
 }

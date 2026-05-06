@@ -94,13 +94,10 @@ public class AuthService {
     response.put("token", token);
     response.put("email", newUser.getEmail());
     response.put("role", newUser.getRole());
-<<<<<<< HEAD
     response.put("userId", String.valueOf(newUser.getId()));
-=======
     response.put("id", String.valueOf(newUser.getId()));
     response.put("nom", newUser.getNom());
     response.put("prenom", newUser.getPrenom());
->>>>>>> 61787162c3453708035f0173e5bc63974105a1da
     response.put("typeAbonnement",
             dto.getTypeAbonnement() != null ? dto.getTypeAbonnement() : "MOIS_1");
     response.put("message", "Inscription réussie !");
@@ -172,13 +169,10 @@ public class AuthService {
     response.put("token", token);
     response.put("email", newUser.getEmail());
     response.put("role", newUser.getRole());
-<<<<<<< HEAD
     response.put("userId", newUser.getId());
-=======
     response.put("id", String.valueOf(newUser.getId()));
     response.put("nom", newUser.getNom());
     response.put("prenom", newUser.getPrenom());
->>>>>>> 61787162c3453708035f0173e5bc63974105a1da
     response.put("message", "Inscription et paiement réussis !");
     return response;
   }
@@ -202,12 +196,9 @@ public class AuthService {
     response.put("role", u.getRole());
     response.put("nom", u.getNom());
     response.put("prenom", u.getPrenom());
-<<<<<<< HEAD
     response.put("userId", u.getId());
-=======
     response.put("email", u.getEmail());
     response.put("id", String.valueOf(u.getId()));
->>>>>>> 61787162c3453708035f0173e5bc63974105a1da
     response.put("message", "Connexion réussie !");
     return response;
   }
