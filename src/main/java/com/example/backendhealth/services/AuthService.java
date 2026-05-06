@@ -32,10 +32,10 @@ public class AuthService {
   private AbonnementRepository abonnementRepository;
 
   @Autowired
-  private NutritionistRepository nutritionistRepository; // ✅ AJOUTÉ
+  private NutritionistRepository nutritionistRepository;
 
   @Autowired
-  private BloomerRepository bloomerRepository;           // ✅ AJOUTÉ
+  private BloomerRepository bloomerRepository;
 
   @Autowired
   private JwtUtil jwtUtil;
@@ -50,54 +50,57 @@ public class AuthService {
       throw new RuntimeException("Email déjà utilisé !");
     }
 
-    // 1. Créer l'utilisateur de base
-    user newUser = new user();
-    newUser.setNom(dto.getNom());
-    newUser.setPrenom(dto.getPrenom());
-    newUser.setEmail(dto.getEmail());
-    newUser.setTel(dto.getTel());
-    newUser.setRole(dto.getRole() != null ? dto.getRole() : "BLOOMER");
-    newUser.setPwd(passwordEncoder.encode(dto.getPwd()));
-    newUser.setActive(true);
-    userRepository.save(newUser);
+    user newUser;
 
-    // 2. ✅ Sauvegarder dans la table spécifique selon le rôle
+    // ✅ FIX : On NE fait plus userRepository.save(newUser) séparément.
+    // Avec JOINED inheritance, sauvegarder Nutritionist/Bloomer insère
+    // automatiquement dans "users" ET dans la table fille.
+
     if ("NUTRITIONIST".equals(dto.getRole())) {
       Nutritionist nutri = new Nutritionist();
       nutri.setNom(dto.getNom());
       nutri.setPrenom(dto.getPrenom());
       nutri.setEmail(dto.getEmail());
       nutri.setTel(dto.getTel());
+      nutri.setPwd(passwordEncoder.encode(dto.getPwd()));
+      nutri.setRole("NUTRITIONIST");
+      nutri.setActive(true);
       nutri.setSpecialite(dto.getSpecialite());
       nutri.setLocalisation(dto.getLocalisation());
-      nutri.setUserEntity(newUser);
-      nutritionistRepository.save(nutri);
+      nutritionistRepository.save(nutri); // ✅ 1 seul insert dans users + nutritionists
+      newUser = nutri;
 
-    } else if ("BLOOMER".equals(dto.getRole())) {
+    } else {
       Bloomer bloomer = new Bloomer();
       bloomer.setNom(dto.getNom());
       bloomer.setPrenom(dto.getPrenom());
       bloomer.setEmail(dto.getEmail());
       bloomer.setTel(dto.getTel());
+      bloomer.setPwd(passwordEncoder.encode(dto.getPwd()));
+      bloomer.setRole("BLOOMER");
+      bloomer.setActive(true);
       bloomer.setAge(dto.getAge());
       bloomer.setHeight(dto.getHeight());
       bloomer.setWeight(dto.getWeight());
       bloomer.setGoal(dto.getGoal());
       bloomer.setLifestyleLevel(dto.getLifestyleLevel());
-      bloomer.setUserEntity(newUser);
-      bloomerRepository.save(bloomer);
+      bloomerRepository.save(bloomer); // ✅ 1 seul insert dans users + bloomers
+      newUser = bloomer;
     }
 
-    // 3. Générer token
     String token = jwtUtil.generateToken(newUser.getEmail(), newUser.getRole());
 
     Map<String, String> response = new HashMap<>();
     response.put("token", token);
     response.put("email", newUser.getEmail());
     response.put("role", newUser.getRole());
+<<<<<<< HEAD
+    response.put("userId", String.valueOf(newUser.getId()));
+=======
     response.put("id", String.valueOf(newUser.getId()));
     response.put("nom", newUser.getNom());
     response.put("prenom", newUser.getPrenom());
+>>>>>>> 61787162c3453708035f0173e5bc63974105a1da
     response.put("typeAbonnement",
             dto.getTypeAbonnement() != null ? dto.getTypeAbonnement() : "MOIS_1");
     response.put("message", "Inscription réussie !");
@@ -113,45 +116,43 @@ public class AuthService {
       throw new RuntimeException("Email déjà utilisé !");
     }
 
-    // 1. Créer l'utilisateur de base
-    user newUser = new user();
-    newUser.setNom(registerDTO.getNom());
-    newUser.setPrenom(registerDTO.getPrenom());
-    newUser.setEmail(registerDTO.getEmail());
-    newUser.setTel(registerDTO.getTel());
-    newUser.setRole(registerDTO.getRole() != null ? registerDTO.getRole() : "BLOOMER");
-    newUser.setPwd(passwordEncoder.encode(registerDTO.getPwd()));
-    newUser.setActive(true);
-    userRepository.save(newUser);
+    user newUser;
 
-    // 2. ✅ Sauvegarder dans la table spécifique selon le rôle
+    // ✅ FIX : même logique, plus de double save
+
     if ("NUTRITIONIST".equals(registerDTO.getRole())) {
       Nutritionist nutri = new Nutritionist();
       nutri.setNom(registerDTO.getNom());
       nutri.setPrenom(registerDTO.getPrenom());
       nutri.setEmail(registerDTO.getEmail());
       nutri.setTel(registerDTO.getTel());
+      nutri.setPwd(passwordEncoder.encode(registerDTO.getPwd()));
+      nutri.setRole("NUTRITIONIST");
+      nutri.setActive(true);
       nutri.setSpecialite(registerDTO.getSpecialite());
       nutri.setLocalisation(registerDTO.getLocalisation());
-      nutri.setUserEntity(newUser);
       nutritionistRepository.save(nutri);
+      newUser = nutri;
 
-    } else if ("BLOOMER".equals(registerDTO.getRole())) {
+    } else {
       Bloomer bloomer = new Bloomer();
       bloomer.setNom(registerDTO.getNom());
       bloomer.setPrenom(registerDTO.getPrenom());
       bloomer.setEmail(registerDTO.getEmail());
       bloomer.setTel(registerDTO.getTel());
+      bloomer.setPwd(passwordEncoder.encode(registerDTO.getPwd()));
+      bloomer.setRole("BLOOMER");
+      bloomer.setActive(true);
       bloomer.setAge(registerDTO.getAge());
       bloomer.setHeight(registerDTO.getHeight());
       bloomer.setWeight(registerDTO.getWeight());
       bloomer.setGoal(registerDTO.getGoal());
       bloomer.setLifestyleLevel(registerDTO.getLifestyleLevel());
-      bloomer.setUserEntity(newUser);
       bloomerRepository.save(bloomer);
+      newUser = bloomer;
     }
 
-    // 3. Créer l'abonnement
+    // Créer l'abonnement
     Abonnement.TypeAbonnement type =
             Abonnement.TypeAbonnement.valueOf(paymentRequest.getTypeAbonnement());
 
@@ -165,16 +166,19 @@ public class AuthService {
     abonnement.setUserEntity(newUser);
     abonnementRepository.save(abonnement);
 
-    // 4. Générer token
     String token = jwtUtil.generateToken(newUser.getEmail(), newUser.getRole());
 
     Map<String, String> response = new HashMap<>();
     response.put("token", token);
     response.put("email", newUser.getEmail());
     response.put("role", newUser.getRole());
+<<<<<<< HEAD
+    response.put("userId", newUser.getId());
+=======
     response.put("id", String.valueOf(newUser.getId()));
     response.put("nom", newUser.getNom());
     response.put("prenom", newUser.getPrenom());
+>>>>>>> 61787162c3453708035f0173e5bc63974105a1da
     response.put("message", "Inscription et paiement réussis !");
     return response;
   }
@@ -198,8 +202,12 @@ public class AuthService {
     response.put("role", u.getRole());
     response.put("nom", u.getNom());
     response.put("prenom", u.getPrenom());
+<<<<<<< HEAD
+    response.put("userId", u.getId());
+=======
     response.put("email", u.getEmail());
     response.put("id", String.valueOf(u.getId()));
+>>>>>>> 61787162c3453708035f0173e5bc63974105a1da
     response.put("message", "Connexion réussie !");
     return response;
   }

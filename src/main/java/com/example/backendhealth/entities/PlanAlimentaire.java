@@ -35,10 +35,10 @@ public class PlanAlimentaire {
     private String objectif;
 
     @Column(name = "user_id")
-    private Long userId;
+    private String userId;
 
     @Column(name = "nutritionniste_id")
-    private Long nutritionnisteId;
+    private String nutritionnisteId;
 
     @Column(name = "regime_id")
     private Long regimeId;

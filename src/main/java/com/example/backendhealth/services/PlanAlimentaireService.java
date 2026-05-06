@@ -43,7 +43,8 @@ public class PlanAlimentaireService {
         return planRepo.findByConsultationId(consultationId).map(this::toDTO);
     }
 
-    public List<PlanAlimentaireDTO> getPlansByUserId(Long userId) {
+    public List<PlanAlimentaireDTO> getPlansByUserId(String userId)
+ {
         return planRepo.findByUserId(userId).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
