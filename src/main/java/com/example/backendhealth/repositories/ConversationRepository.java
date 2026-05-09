@@ -2,7 +2,6 @@ package com.example.backendhealth.repositories;
 
 import com.example.backendhealth.entities.Conversation;
 import com.example.backendhealth.entities.Conversation.ConversationStatus;
-import com.example.backendhealth.entities.Conversation.ConversationType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -11,15 +10,15 @@ import java.util.Optional;
 @Repository
 public interface ConversationRepository extends JpaRepository<Conversation, Long> {
 
-    List<Conversation> findByPatientId(Long patientId);
+    List<Conversation> findByPatientId(String patientId);          // ← String
 
-    List<Conversation> findByNutritionistId(Long nutritionistId);
+    List<Conversation> findByNutritionistId(String nutritionistId); // ← String
 
-    List<Conversation> findByCoachId(Long coachId);
+    List<Conversation> findByCoachId(String coachId);              // ← String
 
     Optional<Conversation> findByPatientIdAndNutritionistIdAndStatus(
-            Long patientId, Long nutritionistId, ConversationStatus status);
+            String patientId, String nutritionistId, ConversationStatus status); // ← String
 
     Optional<Conversation> findByPatientIdAndCoachIdAndStatus(
-            Long patientId, Long coachId, ConversationStatus status);
+            String patientId, String coachId, ConversationStatus status);        // ← String
 }

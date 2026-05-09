@@ -41,6 +41,8 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/conversations/**").permitAll()
                         .requestMatchers("/api/messages/**").permitAll()
+                        .requestMatchers("/api/users/**").permitAll()  // ✅ ligne ajoutée
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

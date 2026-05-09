@@ -30,15 +30,13 @@ public class Conversation {
     private Long id;
 
     @Column(nullable = false)
-    private Long patientId;
+    private String patientId;          // ← String UUID
 
-    // nullable — utilisé seulement si type = NUTRITIONIST_PATIENT
     @Column
-    private Long nutritionistId;
+    private String nutritionistId;     // ← String UUID
 
-    // nullable — utilisé seulement si type = COACH_PATIENT
     @Column
-    private Long coachId;
+    private String coachId;            // ← String UUID
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

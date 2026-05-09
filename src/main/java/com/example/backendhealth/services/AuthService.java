@@ -5,10 +5,12 @@ import com.example.backendhealth.dto.LoginDTO;
 import com.example.backendhealth.dto.RegisterDTO;
 import com.example.backendhealth.entities.Abonnement;
 import com.example.backendhealth.entities.Bloomer;
+import com.example.backendhealth.entities.Coach;
 import com.example.backendhealth.entities.Nutritionist;
 import com.example.backendhealth.entities.user;
 import com.example.backendhealth.repositories.AbonnementRepository;
 import com.example.backendhealth.repositories.BloomerRepository;
+import com.example.backendhealth.repositories.CoachRepository;
 import com.example.backendhealth.repositories.NutritionistRepository;
 import com.example.backendhealth.repositories.UserRepository;
 import com.example.backendhealth.security.JwtUtil;
@@ -25,23 +27,13 @@ import java.util.UUID;
 @Service
 public class AuthService {
 
-  @Autowired
-  private UserRepository userRepository;
-
-  @Autowired
-  private AbonnementRepository abonnementRepository;
-
-  @Autowired
-  private NutritionistRepository nutritionistRepository;
-
-  @Autowired
-  private BloomerRepository bloomerRepository;
-
-  @Autowired
-  private JwtUtil jwtUtil;
-
-  @Autowired
-  private PasswordEncoder passwordEncoder;
+  @Autowired private UserRepository userRepository;
+  @Autowired private AbonnementRepository abonnementRepository;
+  @Autowired private NutritionistRepository nutritionistRepository;
+  @Autowired private CoachRepository coachRepository;        // ✅ AJOUT
+  @Autowired private BloomerRepository bloomerRepository;
+  @Autowired private JwtUtil jwtUtil;
+  @Autowired private PasswordEncoder passwordEncoder;
 
   // ─── REGISTER SIMPLE ──────────────────────────────────────────────────────
   @Transactional
@@ -51,10 +43,6 @@ public class AuthService {
     }
 
     user newUser;
-
-    // ✅ FIX : On NE fait plus userRepository.save(newUser) séparément.
-    // Avec JOINED inheritance, sauvegarder Nutritionist/Bloomer insère
-    // automatiquement dans "users" ET dans la table fille.
 
     if ("NUTRITIONIST".equals(dto.getRole())) {
       Nutritionist nutri = new Nutritionist();
@@ -67,8 +55,20 @@ public class AuthService {
       nutri.setActive(true);
       nutri.setSpecialite(dto.getSpecialite());
       nutri.setLocalisation(dto.getLocalisation());
-      nutritionistRepository.save(nutri); // ✅ 1 seul insert dans users + nutritionists
+      nutritionistRepository.save(nutri);
       newUser = nutri;
+
+    } else if ("COACH".equals(dto.getRole())) {             // ✅ AJOUT CAS COACH
+      Coach coach = new Coach();
+      coach.setNom(dto.getNom());
+      coach.setPrenom(dto.getPrenom());
+      coach.setEmail(dto.getEmail());
+      coach.setTel(dto.getTel());
+      coach.setPwd(passwordEncoder.encode(dto.getPwd()));
+      coach.setRole("COACH");
+      coach.setActive(true);
+      coachRepository.save(coach);
+      newUser = coach;
 
     } else {
       Bloomer bloomer = new Bloomer();
@@ -84,38 +84,33 @@ public class AuthService {
       bloomer.setWeight(dto.getWeight());
       bloomer.setGoal(dto.getGoal());
       bloomer.setLifestyleLevel(dto.getLifestyleLevel());
-      bloomerRepository.save(bloomer); // ✅ 1 seul insert dans users + bloomers
+      bloomerRepository.save(bloomer);
       newUser = bloomer;
     }
 
     String token = jwtUtil.generateToken(newUser.getEmail(), newUser.getRole());
 
     Map<String, String> response = new HashMap<>();
-    response.put("token", token);
-    response.put("email", newUser.getEmail());
-    response.put("role", newUser.getRole());
-    response.put("userId", String.valueOf(newUser.getId()));
-    response.put("id", String.valueOf(newUser.getId()));
-    response.put("nom", newUser.getNom());
-    response.put("prenom", newUser.getPrenom());
-    response.put("typeAbonnement",
-            dto.getTypeAbonnement() != null ? dto.getTypeAbonnement() : "MOIS_1");
-    response.put("message", "Inscription réussie !");
+    response.put("token",          token);
+    response.put("userId",         String.valueOf(newUser.getId()));
+    response.put("email",          newUser.getEmail());
+    response.put("role",           newUser.getRole());
+    response.put("nom",            newUser.getNom());
+    response.put("prenom",         newUser.getPrenom());
+    response.put("typeAbonnement", dto.getTypeAbonnement() != null ? dto.getTypeAbonnement() : "MOIS_1");
+    response.put("message",        "Inscription réussie !");
     return response;
   }
 
-  // ─── REGISTER + PAIEMENT EN UNE SEULE TRANSACTION ────────────────────────
+  // ─── REGISTER + PAIEMENT ──────────────────────────────────────────────────
   @Transactional
   public Map<String, String> registerWithPayment(RegisterDTO registerDTO,
                                                  AbonnementDTO.PaymentRequest paymentRequest) {
-
     if (userRepository.existsByEmail(registerDTO.getEmail())) {
       throw new RuntimeException("Email déjà utilisé !");
     }
 
     user newUser;
-
-    // ✅ FIX : même logique, plus de double save
 
     if ("NUTRITIONIST".equals(registerDTO.getRole())) {
       Nutritionist nutri = new Nutritionist();
@@ -130,6 +125,18 @@ public class AuthService {
       nutri.setLocalisation(registerDTO.getLocalisation());
       nutritionistRepository.save(nutri);
       newUser = nutri;
+
+    } else if ("COACH".equals(registerDTO.getRole())) {     // ✅ AJOUT CAS COACH
+      Coach coach = new Coach();
+      coach.setNom(registerDTO.getNom());
+      coach.setPrenom(registerDTO.getPrenom());
+      coach.setEmail(registerDTO.getEmail());
+      coach.setTel(registerDTO.getTel());
+      coach.setPwd(passwordEncoder.encode(registerDTO.getPwd()));
+      coach.setRole("COACH");
+      coach.setActive(true);
+      coachRepository.save(coach);
+      newUser = coach;
 
     } else {
       Bloomer bloomer = new Bloomer();
@@ -149,7 +156,6 @@ public class AuthService {
       newUser = bloomer;
     }
 
-    // Créer l'abonnement
     Abonnement.TypeAbonnement type =
             Abonnement.TypeAbonnement.valueOf(paymentRequest.getTypeAbonnement());
 
@@ -166,13 +172,12 @@ public class AuthService {
     String token = jwtUtil.generateToken(newUser.getEmail(), newUser.getRole());
 
     Map<String, String> response = new HashMap<>();
-    response.put("token", token);
-    response.put("email", newUser.getEmail());
-    response.put("role", newUser.getRole());
-    response.put("userId", newUser.getId());
-    response.put("id", String.valueOf(newUser.getId()));
-    response.put("nom", newUser.getNom());
-    response.put("prenom", newUser.getPrenom());
+    response.put("token",   token);
+    response.put("userId",  String.valueOf(newUser.getId()));
+    response.put("email",   newUser.getEmail());
+    response.put("role",    newUser.getRole());
+    response.put("nom",     newUser.getNom());
+    response.put("prenom",  newUser.getPrenom());
     response.put("message", "Inscription et paiement réussis !");
     return response;
   }
@@ -192,13 +197,12 @@ public class AuthService {
     String token = jwtUtil.generateToken(u.getEmail(), u.getRole());
 
     Map<String, String> response = new HashMap<>();
-    response.put("token", token);
-    response.put("role", u.getRole());
-    response.put("nom", u.getNom());
-    response.put("prenom", u.getPrenom());
-    response.put("userId", u.getId());
-    response.put("email", u.getEmail());
-    response.put("id", String.valueOf(u.getId()));
+    response.put("token",   token);
+    response.put("userId",  String.valueOf(u.getId()));
+    response.put("email",   u.getEmail());
+    response.put("role",    u.getRole());
+    response.put("nom",     u.getNom());
+    response.put("prenom",  u.getPrenom());
     response.put("message", "Connexion réussie !");
     return response;
   }

@@ -21,7 +21,7 @@ public class ConversationService {
     private final ConversationRepository conversationRepository;
 
     public ConversationDTO createConversation(ConversationDTO dto) {
-        // Détermine le type automatiquement
+        // Détermine le type automatiquement selon coachId ou nutritionistId
         ConversationType type = dto.getCoachId() != null
                 ? ConversationType.COACH_PATIENT
                 : ConversationType.NUTRITIONIST_PATIENT;
@@ -59,19 +59,19 @@ public class ConversationService {
     }
 
     @Transactional(readOnly = true)
-    public List<ConversationDTO> getConversationsByPatient(Long patientId) {
+    public List<ConversationDTO> getConversationsByPatient(String patientId) {  // ← String
         return conversationRepository.findByPatientId(patientId)
                 .stream().map(c -> toDTO(c, false)).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<ConversationDTO> getConversationsByNutritionist(Long nutritionistId) {
+    public List<ConversationDTO> getConversationsByNutritionist(String nutritionistId) {  // ← String
         return conversationRepository.findByNutritionistId(nutritionistId)
                 .stream().map(c -> toDTO(c, false)).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<ConversationDTO> getConversationsByCoach(Long coachId) {
+    public List<ConversationDTO> getConversationsByCoach(String coachId) {  // ← String
         return conversationRepository.findByCoachId(coachId)
                 .stream().map(c -> toDTO(c, false)).collect(Collectors.toList());
     }
