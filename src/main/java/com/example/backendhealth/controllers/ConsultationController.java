@@ -35,17 +35,17 @@ public class ConsultationController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ConsultationDTO>> getByUser(@PathVariable String userId) {
+    public ResponseEntity<List<ConsultationDTO>> getByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(consultationService.getByUserId(userId));
     }
 
     @GetMapping("/nutritionniste/{id}")
-    public ResponseEntity<List<ConsultationDTO>> getByNutritionniste(@PathVariable String id) {
+    public ResponseEntity<List<ConsultationDTO>> getByNutritionniste(@PathVariable Long id) {
         return ResponseEntity.ok(consultationService.getByNutritionnisteId(id));
     }
 
     @GetMapping("/coach/{id}")
-    public ResponseEntity<List<ConsultationDTO>> getByCoach(@PathVariable String id) {
+    public ResponseEntity<List<ConsultationDTO>> getByCoach(@PathVariable Long id) {
         return ResponseEntity.ok(consultationService.getByCoachId(id));
     }
 

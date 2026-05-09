@@ -31,36 +31,37 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/plans-alimentaires/**").permitAll()
-                        .requestMatchers("/api/regimes-alimentaires/**").permitAll()
-                        .requestMatchers("/api/repas/**").permitAll()
-                        .requestMatchers("/api/rendez-vous/**").permitAll()
-                        .requestMatchers("/api/consultations/**").permitAll()
+          .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/auth/**").permitAll()
+            .requestMatchers("/api/plans-alimentaires/**").permitAll()
+            .requestMatchers("/api/regimes-alimentaires/**").permitAll()
+            .requestMatchers("/api/repas/**").permitAll()
+            .requestMatchers("/api/rendez-vous/**").permitAll()
+            .requestMatchers("/api/consultations/**").permitAll()
+            .requestMatchers("/api/conversations/**").permitAll()
+            .requestMatchers("/api/messages/**").permitAll()
+            .requestMatchers("/api/patients/**").permitAll()
+            .requestMatchers("/api/plans-exercices/**").permitAll()
 
-                        .requestMatchers("/api/conversations/**").permitAll()
-                        .requestMatchers("/api/messages/**").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()  // ✅ ligne ajoutée
+            .anyRequest().permitAll()
+          )
 
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+          .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
-        config.setAllowedMethods(List.of("GET", "PATCH","POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // ← PATCH ajouté
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOriginPatterns(List.of("http://localhost:*"));
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+    config.setAllowedHeaders(List.of("*"));
+    config.setAllowCredentials(true);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+    return source;
+  }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

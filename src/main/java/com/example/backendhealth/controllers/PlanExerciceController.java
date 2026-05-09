@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/plans-exercice")
+@RequestMapping("/api/plans-exercices")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200")
 public class PlanExerciceController {
 
     private final PlanExerciceService planExerciceService;
@@ -23,6 +24,11 @@ public class PlanExerciceController {
     @GetMapping("/{id}")
     public ResponseEntity<PlanExerciceDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(planExerciceService.getById(id));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PlanExerciceDto>> getByUser(@PathVariable String userId) {
+        return ResponseEntity.ok(planExerciceService.getPlansByUserId(userId));
     }
 
     @PostMapping

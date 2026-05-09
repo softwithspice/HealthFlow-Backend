@@ -13,50 +13,82 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtUtil jwtUtil;
+  @Autowired
+  private JwtUtil jwtUtil;
 
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+  @Autowired
+  private UserDetailsServiceImpl userDetailsService;
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
+  // Paths that are publicly accessible — no JWT required
+  private static final List<String> PUBLIC_PREFIXES = List.of(
+    "/api/auth/",
+    "/api/patients/",
+    "/api/plans-alimentaires/",
+    "/api/regimes-alimentaires/",
+    "/api/repas/",
+    "/api/rendez-vous/",
+    "/api/consultations/",
+    "/api/conversations/",
+    "/api/messages/",
+    "/api/plans-exercices/"
+  );
 
-        String authHeader = request.getHeader("Authorization");
-        String token = null;
-        String email = null;
+  private boolean isPublic(HttpServletRequest request) {
+    String path = request.getRequestURI();
+    return PUBLIC_PREFIXES.stream().anyMatch(path::startsWith);
+  }
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-            try {
-                email = jwtUtil.extractEmail(token);
-            } catch (Exception e) {
-                email = null; // token invalide ou expiré — on continue sans auth
-            }
-        }
+  @Override
+  protected void doFilterInternal(HttpServletRequest request,
+                                  HttpServletResponse response,
+                                  FilterChain filterChain)
+    throws ServletException, IOException {
 
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            try {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                if (jwtUtil.validateToken(token, userDetails.getUsername())) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails, null, userDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-            } catch (Exception e) {
-                // utilisateur introuvable ou token invalide — on continue sans auth
-            }
-        }
-
-        filterChain.doFilter(request, response);
+    // Skip JWT processing for public endpoints
+    if (isPublic(request)) {
+      filterChain.doFilter(request, response);
+      return;
     }
+
+    String authHeader = request.getHeader("Authorization");
+    String token = null;
+    String email = null;
+
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      token = authHeader.substring(7);
+      try {
+        email = jwtUtil.extractEmail(token);
+        System.out.println("🔑 JWT Filter: Token extracted, email = " + email);
+      } catch (Exception e) {
+        System.out.println("❌ JWT Filter: Failed to extract email - " + e.getMessage());
+        email = null;
+      }
+    }
+
+    if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+      try {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        if (jwtUtil.validateToken(token, userDetails.getUsername())) {
+          UsernamePasswordAuthenticationToken authToken =
+            new UsernamePasswordAuthenticationToken(
+              userDetails, null, userDetails.getAuthorities());
+          authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+          SecurityContextHolder.getContext().setAuthentication(authToken);
+          System.out.println("✅ JWT Filter: Authentication set for user: " + email);
+        } else {
+          System.out.println("❌ JWT Filter: Token validation failed for " + email);
+        }
+      } catch (Exception e) {
+        System.out.println("❌ JWT Filter: Error loading user - " + e.getMessage());
+        e.printStackTrace();
+      }
+    }
+
+    filterChain.doFilter(request, response);
+  }
 }

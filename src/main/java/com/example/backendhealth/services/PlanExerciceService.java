@@ -29,6 +29,14 @@ public class PlanExerciceService {
         return toDto(plan);
     }
 
+    public List<PlanExerciceDto> getPlansByUserId(String userId) {
+        return coachPlanAssignmentRepository.findByClientId(userId).stream()
+                .map(assignment -> planExerciceRepository.findById(assignment.getPlanExerciceId()))
+                .filter(java.util.Optional::isPresent)
+                .map(opt -> toDto(opt.get()))
+                .collect(Collectors.toList());
+    }
+
     public PlanExerciceDto create(PlanExerciceDto dto) {
         PlanExercice plan = planExerciceRepository.save(toEntity(dto));
         if (dto.getExercices() != null && !dto.getExercices().isEmpty()) {

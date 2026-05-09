@@ -34,17 +34,17 @@ public class ConsultationService {
                         "Consultation introuvable pour le RDV : id=" + rendezVousId)));
     }
 
-    public List<ConsultationDTO> getByUserId(String userId) {
+    public List<ConsultationDTO> getByUserId(Long userId) {
         return consultationRepo.findByUserId(userId)
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<ConsultationDTO> getByNutritionnisteId(String nutritionnisteId) {
+    public List<ConsultationDTO> getByNutritionnisteId(Long nutritionnisteId) {
         return consultationRepo.findByNutritionnisteId(nutritionnisteId)
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<ConsultationDTO> getByCoachId(String coachId) {
+    public List<ConsultationDTO> getByCoachId(Long coachId) {
         return consultationRepo.findByCoachId(coachId)
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
