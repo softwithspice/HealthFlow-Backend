@@ -4,7 +4,8 @@ import com.example.backendhealth.entities.ObjectifPersonnel;
 import com.example.backendhealth.services.ObjectifService;
 import org.springframework.web.bind.annotation.*;
 @RestController
-@RequestMapping("/objectifs")
+@RequestMapping("/api/objectifs")
+
 @CrossOrigin("*")
 public class ObjectifController {
 
