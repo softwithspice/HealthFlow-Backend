@@ -14,5 +14,6 @@ build/
 *.log
 
 # Sensitive info
-application.properties
+**/application.properties
 .env
+
