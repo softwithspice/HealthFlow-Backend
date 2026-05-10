@@ -29,6 +29,8 @@ public class PlanExercice {
     private Integer seancesParSemaine;
     private Boolean actif;
 
+    private String coachId;
+
     @Column(nullable = false)
     private LocalDate dateDebut;
 

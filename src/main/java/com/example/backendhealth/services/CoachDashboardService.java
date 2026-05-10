@@ -43,7 +43,8 @@ public class CoachDashboardService {
         user coach = getUserById(coachId);
         AbonnementDTO.StatutAbonnementResponse sub = abonnementService.verifierStatut(coach.getEmail());
 
-        long activePlans = planExerciceRepository.findByActif(true).size();
+        long activePlans = planExerciceRepository.findByCoachIdAndActif(coachId, true).size();
+        long totalExercises = exerciceRepository.countByCoachId(coachId);
 
         return CoachDashboardOverviewDTO.builder()
                 .totalClients(assignmentRepository.findByCoachId(coachId).stream()
@@ -51,7 +52,7 @@ public class CoachDashboardService {
                         .distinct()
                         .count())
                 .activeWorkoutPlans(activePlans)
-                .totalExercises(exerciceRepository.count())
+                .totalExercises(totalExercises)
                 .unreadMessages(coachMessageRepository.countByConversationCoachIdAndIsReadFalseAndSenderRole(coachId, SenderRole.CLIENT))
                 .subscriptionStatus(sub.isHasActiveSubscription() ? "Active" : "Expired")
                 .subscriptionRemainingDays(sub.getJoursRestants())
@@ -59,7 +60,7 @@ public class CoachDashboardService {
     }
 
     public List<CoachWorkoutPlanSummaryDTO> getWorkoutPlans(String coachId) {
-        return planExerciceRepository.findAll()
+        return planExerciceRepository.findByCoachId(coachId)
                 .stream()
                 .sorted(Comparator.comparing(PlanExercice::getUpdatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(plan -> CoachWorkoutPlanSummaryDTO.builder()
@@ -81,18 +82,15 @@ public class CoachDashboardService {
         Map<String, List<CoachPlanAssignment>> byClient = assignments.stream()
                 .collect(Collectors.groupingBy(CoachPlanAssignment::getClientId));
 
-        List<user> roleClients = new ArrayList<>();
-      roleClients.addAll(userRepository.findByRole("BLOOMER"));
-        roleClients.addAll(userRepository.findByRole("PATIENT"));
+        // Only return clients who have at least one assignment with this coach
+        return byClient.entrySet().stream()
+                .map(entry -> {
+                    String clientId = entry.getKey();
+                    List<CoachPlanAssignment> clientAssignments = entry.getValue();
 
-        Map<String, user> allClients = new LinkedHashMap<>();
-        roleClients.forEach(c -> allClients.put(c.getId(), c));
-        byClient.keySet().forEach(clientId ->
-                userRepository.findById(clientId).ifPresent(u -> allClients.putIfAbsent(u.getId(), u)));
+                    user client = userRepository.findById(clientId).orElse(null);
+                    if (client == null) return null;
 
-        return allClients.values().stream()
-                .map(client -> {
-                    List<CoachPlanAssignment> clientAssignments = byClient.getOrDefault(client.getId(), List.of());
                     List<String> plans = clientAssignments.stream()
                             .map(a -> planById.get(String.valueOf(a.getPlanExerciceId())))
                             .filter(Objects::nonNull)
@@ -114,6 +112,7 @@ public class CoachDashboardService {
                             .progressStatus(progress)
                             .build();
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 

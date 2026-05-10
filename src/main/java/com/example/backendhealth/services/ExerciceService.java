@@ -33,6 +33,11 @@ public class ExerciceService {
                 .stream().map(this::toDto).collect(Collectors.toList());
     }
 
+    public List<ExerciceDto> getByCoachId(String coachId) {
+        return exerciceRepository.findByCoachId(coachId)
+                .stream().map(this::toDto).collect(Collectors.toList());
+    }
+
     public ExerciceDto create(ExerciceDto dto) {
         PlanExercice plan = null;
         if (dto.getPlanExerciceId() != null) {
@@ -60,6 +65,7 @@ public class ExerciceService {
         exercice.setTempsReposSecondes(dto.getTempsReposSecondes());
         exercice.setPoidsKg(dto.getPoidsKg());
         exercice.setPlanExercice(plan);
+        if (dto.getCoachId() != null) exercice.setCoachId(dto.getCoachId());
 
         return toDto(exerciceRepository.save(exercice));
     }
@@ -80,6 +86,7 @@ public class ExerciceService {
                 .dureeSecondes(e.getDureeSecondes())
                 .tempsReposSecondes(e.getTempsReposSecondes())
                 .poidsKg(e.getPoidsKg())
+                .coachId(e.getCoachId())
                 .planExerciceId(e.getPlanExercice() != null ? e.getPlanExercice().getId() : null)
                 .createdAt(e.getCreatedAt())
                 .updatedAt(e.getUpdatedAt())
@@ -95,6 +102,7 @@ public class ExerciceService {
                 .dureeSecondes(dto.getDureeSecondes())
                 .tempsReposSecondes(dto.getTempsReposSecondes())
                 .poidsKg(dto.getPoidsKg())
+                .coachId(dto.getCoachId())
                 .planExercice(plan)
                 .build();
     }

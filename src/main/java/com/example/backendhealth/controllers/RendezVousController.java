@@ -32,7 +32,7 @@ public class RendezVousController {
     // ── GET ALL COACHS ─────────────────────────────────────────────
     @GetMapping("/coachs")
     public ResponseEntity<List<Coach>> getAllCoachs() {
-        return ResponseEntity.ok(rdvService.rechercherCoachParNom(""));
+        return ResponseEntity.ok(rdvService.getAllCoaches());
     }
 
     // ── Patient cherche nutritionniste par nom ─────────────────────

@@ -50,6 +50,10 @@ public class RendezVousService {
         return coachRepo.findByNomContainingIgnoreCase(nom);
     }
 
+    public List<Coach> getAllCoaches() {
+        return coachRepo.findAll();
+    }
+
     public List<RendezVousDTO> getAllRendezVous() {
         return rdvRepo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }

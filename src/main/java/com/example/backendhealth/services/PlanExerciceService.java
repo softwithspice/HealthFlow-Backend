@@ -56,6 +56,7 @@ public class PlanExerciceService {
         plan.setActif(dto.getActif());
         plan.setDateDebut(dto.getDateDebut());
         plan.setDateFin(dto.getDateFin());
+        if (dto.getCoachId() != null) plan.setCoachId(dto.getCoachId());
 
         PlanExercice savedPlan = planExerciceRepository.save(plan);
         if (dto.getExercices() != null) {
@@ -102,6 +103,7 @@ public class PlanExerciceService {
                 .dureeSemaines(p.getDureeSemaines())
                 .seancesParSemaine(p.getSeancesParSemaine())
                 .actif(p.getActif())
+                .coachId(p.getCoachId())
                 .dateDebut(p.getDateDebut())
                 .dateFin(p.getDateFin())
                 .exercices(exerciceDtos)
@@ -117,6 +119,7 @@ public class PlanExerciceService {
                 .dureeSemaines(dto.getDureeSemaines())
                 .seancesParSemaine(dto.getSeancesParSemaine())
                 .actif(dto.getActif() != null ? dto.getActif() : true)
+                .coachId(dto.getCoachId())
                 .dateDebut(dto.getDateDebut() != null ? dto.getDateDebut() : java.time.LocalDate.now())
                 .dateFin(dto.getDateFin())
                 .build();

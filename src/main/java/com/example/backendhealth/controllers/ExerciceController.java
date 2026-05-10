@@ -16,7 +16,10 @@ public class ExerciceController {
     private final ExerciceService exerciceService;
 
     @GetMapping
-    public ResponseEntity<List<ExerciceDto>> getAll() {
+    public ResponseEntity<List<ExerciceDto>> getAll(@RequestParam(required = false) String coachId) {
+        if (coachId != null && !coachId.isBlank()) {
+            return ResponseEntity.ok(exerciceService.getByCoachId(coachId));
+        }
         return ResponseEntity.ok(exerciceService.getAll());
     }
 
