@@ -5,7 +5,8 @@ import com.example.backendhealth.services.SuiviService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/suivi")
+@RequestMapping("/api/suivi")
+
 @CrossOrigin("*")
 public class SuiviController {
 
