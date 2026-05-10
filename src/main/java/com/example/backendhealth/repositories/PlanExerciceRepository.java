@@ -9,8 +9,4 @@ import java.util.List;
 public interface PlanExerciceRepository extends JpaRepository<PlanExercice, Long> {
 
     List<PlanExercice> findByActif(Boolean actif);
-
-    List<PlanExercice> findByCoachId(String coachId);
-
-    List<PlanExercice> findByCoachIdAndActif(String coachId, Boolean actif);
 }

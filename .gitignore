@@ -1,0 +1,18 @@
+# Gradle
+.gradle/
+build/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Compiled Java
+*.class
+
+# Logs
+*.log
+
+# Sensitive info
+application.properties
+.env

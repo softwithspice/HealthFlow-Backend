@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 public class ConsultationDTO {
     private Long id;
     private Long rendezVousId;
-    private Long userId;
-    private Long nutritionnisteId;
-    private Long coachId;
+    private String userId;
+    private String nutritionnisteId;
+    private String coachId;
     private Double poids;
     private Double taille;
     private Double imc;

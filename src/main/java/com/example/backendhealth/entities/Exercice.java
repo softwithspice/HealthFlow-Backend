@@ -28,8 +28,6 @@ public class Exercice {
     private Integer tempsReposSecondes;
     private Double poidsKg;
 
-    private String coachId;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "plan_exercice_id", nullable = true)
     private PlanExercice planExercice;

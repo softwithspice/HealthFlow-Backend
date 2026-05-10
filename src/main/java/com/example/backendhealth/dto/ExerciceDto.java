@@ -25,8 +25,6 @@ public class ExerciceDto {
 
     private Double poidsKg;
 
-    private String coachId;
-
     private Long planExerciceId;
 
     private LocalDateTime createdAt;

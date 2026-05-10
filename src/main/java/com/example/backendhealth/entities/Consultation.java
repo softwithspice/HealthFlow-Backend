@@ -24,13 +24,13 @@ public class Consultation {
     private Long rendezVousId;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private String userId;
 
     @Column(name = "nutritionniste_id")
-    private Long nutritionnisteId;
+    private String nutritionnisteId;
 
     @Column(name = "coach_id")
-    private Long coachId;
+    private String coachId;
 
     private Double poids;
     private Double taille;

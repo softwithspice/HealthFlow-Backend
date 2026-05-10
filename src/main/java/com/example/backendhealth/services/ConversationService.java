@@ -59,19 +59,19 @@ public class ConversationService {
     }
 
     @Transactional(readOnly = true)
-    public List<ConversationDTO> getConversationsByPatient(Long patientId) {
+    public List<ConversationDTO> getConversationsByPatient(String patientId) {
         return conversationRepository.findByPatientId(patientId)
                 .stream().map(c -> toDTO(c, false)).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<ConversationDTO> getConversationsByNutritionist(Long nutritionistId) {
+    public List<ConversationDTO> getConversationsByNutritionist(String nutritionistId) {
         return conversationRepository.findByNutritionistId(nutritionistId)
                 .stream().map(c -> toDTO(c, false)).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<ConversationDTO> getConversationsByCoach(Long coachId) {
+    public List<ConversationDTO> getConversationsByCoach(String coachId) {
         return conversationRepository.findByCoachId(coachId)
                 .stream().map(c -> toDTO(c, false)).collect(Collectors.toList());
     }

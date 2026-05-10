@@ -11,8 +11,4 @@ public interface ExerciceRepository extends JpaRepository<Exercice, Long> {
     List<Exercice> findByPlanExerciceId(Long planId);
 
     long countByPlanExerciceId(Long planId);
-
-    List<Exercice> findByCoachId(String coachId);
-
-    long countByCoachId(String coachId);
 }

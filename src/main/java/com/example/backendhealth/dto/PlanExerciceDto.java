@@ -25,8 +25,6 @@ public class PlanExerciceDto {
 
     private Boolean actif;
 
-    private String coachId;
-
     private LocalDate dateDebut;
     private LocalDate dateFin;
 
